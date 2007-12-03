@@ -8,6 +8,7 @@
 // we are not hackers!
 //##############################################################################
 
+include_once "chowdah-config.php";
 require_once "file.php";
 require_once "http.php";
 
@@ -20,16 +21,17 @@ class Chowdah {
 	const LOG_FILE = 'chowdah-log.txt';
 	const APPLICATIONS_INDEX = 'applications.xml';
 	
-	// applications cache
-	static $applications = array();
-
 	//----------------------------------------------------------------------
 	// initialization functions
 	//----------------------------------------------------------------------
 
 	static public function init() {
-		// initialize applications
-		ChowdahApplication::init();
+		// add autoload function
+		spl_autoload_register(array('Chowdah', 'autoload'));
+		
+		// exception/error handling
+#		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
+		set_exception_handler(array('Chowdah', 'exceptionHandler'));
 		
 		// stat logging
 		Chowdah::logStats();
@@ -37,59 +39,86 @@ class Chowdah {
 	}
 
 	//----------------------------------------------------------------------
-	// request handler
+	// error handling
 	//----------------------------------------------------------------------
 	
-	#[TODO] OPTIONS header? allow?
-	
-	static public function handle(HTTPRequest $request, ChowdahResource $root) {
-		try {
-			// get the requested path
-			$path = array_filter(explode('/', $request->getURIComponents()->path), 'strlen');
-			// descend the tree
-			$resource = $root;
-			foreach ($path as $file)
-				if (!($resource instanceof Collection) || !($resource = $resource->getChild($file)))
-					throw new HTTPStatusException(404);
-			
-			// check that a collection wasn't requested as a document
-			if (substr($request->getURIComponents()->path, -1) != '/' && $resource instanceof Collection)
-				throw new HTTPStatusException(301, 'Moved Permanently',
-				    null, array('Location' => $request->getURI() . '/'));
-			// or a document requested as a collection
-			if (substr($request->getURIComponents()->path, -1) == '/' && $resource instanceof Document)
-				throw new HTTPStatusException(404);
-			
-			// call the resource handler with the current request
-			$response = $resource->handle($request);
-			// if no response was returned, method is not allowed
-			if (!($response instanceof HTTPResponse))
-				throw new HTTPStatusException(405, 'Method Not Allowed',
-				    'The method "' . $request->getMethod() . '" is not allowed on this resource.',
-				    array('Allow' => implode(', ', $resource->getAllowedMethods())));
-			// return the response
-			return $response;
-		} catch (HTTPStatusException $exception) {
-			// submit the error message
-			return $exception->getHTTPResponse();
-		} catch (Exception $exception) {
-			// submit a 500 internal server error
+	static public function exceptionHandler($exception) {
+		// if the exception is generic, throw a 500 Internal Server Error
+		if (!($exception instanceof HTTPStatusException))
 			$exception = new HTTPStatusException(500, 'Internal Server Error', $exception->getMessage());
-			return $exception->getHTTPResponse();
-		}
+		// display the error message
+		$exception->getHTTPResponse()->send();
+	}
+	
+	static public function errorHandler($errno, $errstr, $errfile, $errline) {
+		// convert errors to exceptions (for presentation sake)
+		if (error_reporting())
+			throw new Exception($errstr, $errno);
 	}
 
 	//----------------------------------------------------------------------
-	// resource creation
+	// request handler
 	//----------------------------------------------------------------------
 	
-	static public function createResource($type, $args = array()) {
-		// get the application and type
-		list ($app, $type) = explode(':', $type, 2);
-		if (!($app = ChowdahApplication::load($app)))
+	static public function handle(HTTPRequest $request, HTTPResource $root) {
+		// get the requested path
+		$path = array_filter(explode('/', $request->getURL()->path), 'strlen');
+		// descend the tree
+		$resource = $root;
+		foreach ($path as $file)
+			if (!($resource instanceof Collection) || !($resource = $resource->getChild($file)))
+				throw new HTTPStatusException(404);
+		
+		// check that a collection wasn't requested as a document
+		if (substr($request->getURL()->path, -1) != '/' && $resource instanceof Collection)
+			throw new HTTPStatusException(301, 'Moved Permanently',
+			    null, array('Location' => $request->getURL() . '/'));
+		// or a document requested as a collection
+		if (substr($request->getURL()->path, -1) == '/' && !($resource instanceof Collection))
+			throw new HTTPStatusException(404);
+		
+		// call the resource handler with the current request
+		$response = $resource->handle($request);
+		// if no response was returned, method is not allowed
+		if (!($response instanceof HTTPResponse))
+			throw new HTTPStatusException(405, 'Method Not Allowed',
+			    'The method "' . $request->getMethod() . '" is not allowed on this resource.',
+			    array('Allow' => implode(', ', $resource->getAllowedMethods())));
+		// return the response
+		return $response;
+	}
+
+	//----------------------------------------------------------------------
+	// applications
+	//----------------------------------------------------------------------
+	
+	static public function setCurrentApplication($id) {
+		// load applications file
+		$apps = simplexml_load_file(dirname(__FILE__) . '/' . Chowdah::APPLICATIONS_INDEX);
+		// search for named application
+		$app = $apps->xpath('/chowdah-applications/application[@id="' . $id . '"]');
+		if (!count($app))
 			return false;
-		// create the resource
-		return $app->createResource($type, $args);
+		
+		// change current working directory
+		chdir(dirname(__FILE__) . '/' . $app[0]);
+		return true;
+	}
+	
+	static public function createResource($className, $args = array()) {
+		// check that the class is loaded
+		if (!class_exists($className, false))
+			require_once 'resources/' . $className . '.php';
+			
+		// create the new resource
+		$reflectionClass = new ReflectionClass($className);
+		return $reflectionClass->getConstructor() ?
+		    $reflectionClass->newInstanceArgs($args) :
+		    $reflectionClass->newInstance(); 
+	}
+	
+	static public function autoload($class) {
+		require_once $class . '.php';
 	}
 	
 	//----------------------------------------------------------------------
@@ -121,117 +150,42 @@ class Chowdah {
 }
 
 //=============================================================================
-// Chowdah application class
-//=============================================================================
-
-class ChowdahApplication {
-	// paths
-	protected $path;
-	protected $configPath;
-	
-	// application properties
-	protected $id;
-	protected $title;
-	protected $description;
-	protected $includes = array();
-	protected $types = array();
-	
-	function __construct($configPath) {
-		// save the path
-		$this->configPath = @realpath($configPath);
-		$this->path = dirname($this->configPath);
-		
-		// load and parse the application file
-		$doc = @simplexml_load_file($this->configPath);
-		$this->id = (string) $doc['id'];
-		$this->title = (string) $doc->title;
-		$this->description = (string) $doc->description;
-		// resource types
-		foreach ($doc->{'resource-types'}->{'resource-type'} as $type)
-			$this->types[(string) $type] = (object) array(
-				'class' => (string) $type['class']
-			    );
-
-		// add includes
-		foreach ($doc->includes->children() as $include) {
-			switch ($include->getName()) {
-			    case 'file':
-				require_once $this->path . '/' . ((string) $include);
-				break;
-
-			    case 'application':
-				if (!ChowdahApplication::load((string) $include))
-					throw new Exception('Could not include application dependency "' . ((string) $include) . '".');
-				break;
-			}
-		}
-	}
-	
-	//---------------------------------------------------------------------
-	// resource creation
-	//---------------------------------------------------------------------
-	
-	public function createResource($type, $args = array()) {
-		// validate the type
-		if (!preg_match('/^[0-9a-z_\-\.]+$/', $type))
-			return false;
-		// get the resource type object
-		$type = $this->types[$type];
-		if (!class_exists($class = $type->class))
-			return false;
-		
-		// return a new resource object
-		$class = new ReflectionClass($class);
-		return call_user_func_array(array($class, 'newInstance'),
-		    $class->getConstructor() ? $args : array());
-	}
-	
-	//---------------------------------------------------------------------
-	// applications loading
-	//---------------------------------------------------------------------
-
-	// applications cache
-	static $cache = array();
-	
-	static public function init() {
-		// parse applications file
-		$apps = @simplexml_load_file(Chowdah::APPLICATIONS_INDEX);
-		foreach ($apps->application as $app)
-			if (preg_match('/^[0-9a-z_\-]+$/i', (string) $app['id']) && is_file((string) $app))
-				ChowdahApplication::$cache[(string) $app['id']] = (string) $app;
-	}
-	
-	static public function load($id) {
-		// check if the application exists in the cache
-		if (!isset(ChowdahApplication::$cache[$id]))
-			return false;
-		else if (ChowdahApplication::$cache[$id] instanceof ChowdahApplication)
-			return ChowdahApplication::$cache[$id];
-	
-		try {
-			// get the application address and nullify it (to prevent recursive dependencies)
-			$appPath = ChowdahApplication::$cache[$id];
-			unset(ChowdahApplication::$cache[$id]);
-			// attempt to load and cache the requested application
-			$app = new ChowdahApplication($appPath);
-			return ChowdahApplication::$cache[$id] = $app;
-		} catch (Exception $e) {
-			// application could not be loaded
-			return false;
-		}
-	}
-}
-
-//=============================================================================
 // Chowdah resource interface
 //=============================================================================
 
-interface ChowdahResource {
+interface HTTPResource {
 	// handle an HTTPRequest
 	public function handle(HTTPRequest $request);
 	
 	// return an array of allowed HTTP methods
 	public function getAllowedMethods();
+}
+
+abstract class HTTPResourceBase implements HTTPResource {
+	// allowed HTTP methods
+	protected $methods = array('OPTIONS');
+
+	public function handle(HTTPRequest $request) {
+		// handle HTTP request if method is allowed
+		if (in_array($request->getMethod(), $this->methods))
+			return $this->{$request->getMethod()}($request);
+			
+		// method not allowed
+		return false;
+	}
+	
+	// allowed methods
+	public function getAllowedMethods() {
+		return $this->methods;
+	}
+	
+	// default OPTIONS class
+	public function OPTIONS(HTTPRequest $request) {
+		// create the response
+		$response = new HTTPResponse();
+		$response->setHeader('Allow', implode($this->methods));
+		return $response;
+	}
 }
 
 ?>

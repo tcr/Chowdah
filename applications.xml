@@ -1,2 +1,4 @@
 <?xml version="1.0" ?>
-<chowdah-applications />
+<chowdah-applications>
+  <application id="Technocracy">../.application</application>
+</chowdah-applications>

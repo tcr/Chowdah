@@ -40,7 +40,7 @@ interface WriteableDocument extends Document {
 
 interface Collection {
 	// children
-	public function getChildren($flags = null);
+#	public function getChildren($flags = null);
 	public function getChild($filename);
 	
 	// getChildren flags

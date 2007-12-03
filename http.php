@@ -64,9 +64,9 @@ abstract class HTTPMessage {
 		unset($this->headers[$key]);
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getContent() {
 		// return the content
@@ -113,9 +113,9 @@ abstract class HTTPMessage {
 		return $this->content = implode('', $args) . $this->content;
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content type
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getContentType() {
 		if ($this->getHeader('Content-Type'))
@@ -132,9 +132,9 @@ abstract class HTTPMessage {
 		$this->deleteHeader('Content-Type');
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content language
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getContentLanguage() {
 		$lang = $this->getHeader('Content-Language');
@@ -149,9 +149,9 @@ abstract class HTTPMessage {
 		$this->deleteHeader('Content-Language');
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content ranges
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getContentRange() {
 		// split ranges
@@ -183,25 +183,25 @@ abstract class HTTPMessage {
 		$this->deleteHeader('Content-Range');
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content location
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getContentLocation() {
-		return $this->getHeader('Content-Location');
+		return URL::parse($this->getHeader('Content-Location'));
 	}
 
-	public function setContentLocation($uri) {
-		return $this->setHeader('Content-Location', $uri);
+	public function setContentLocation(URL $url) {
+		return $this->setHeader('Content-Location', $url->serialize());
 	}
 
 	public function deleteContentLocation() {
 		$this->deleteHeader('Content-Location');
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content md5
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function generateMD5Digest() {
 		// set the Content-MD5 header
@@ -213,9 +213,9 @@ abstract class HTTPMessage {
 		$this->deleteHeader('Content-MD5');
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// content encoding
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getEncodedContent(EncodingType $type) {
 		// get the decoded content
@@ -295,9 +295,9 @@ abstract class HTTPMessage {
 			return false;
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// parsed content
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getParsedContent() {
 		// return a parsed representation of the content (based on MIME type)
@@ -421,15 +421,15 @@ abstract class HTTPMessage {
 		}
 	}
 
-	//------------------------------------------------------------------
-	// content as file
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
+	// content as document
+	//----------------------------------------------------------------------
 	
 	public function getContentAsDocument() {
 		// create a virtual document of the entity
 		$document = new VirtualDocument();
 		if ($this instanceof HTTPRequest)
-			$document->setPath(basename($this->getURIComponents()->path));
+			$document->setPath(basename($this->getURL()->path));
 		$document->setContentType($this->getContentType());
 		$document->setContent($this->getDecodedContent());
 		return $document;
@@ -441,9 +441,9 @@ abstract class HTTPMessage {
 		$this->setContent($document->getContent());
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// cookies
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	public function getCookie($name) {
 		return $this->cookies[$name];
@@ -457,9 +457,9 @@ abstract class HTTPMessage {
 		unset($this->cookies[$name]);
 	}
 
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	// user agent
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 	
 	public function getUserAgent() {
 		return $this->getHeader('User-Agent');
@@ -477,10 +477,10 @@ abstract class HTTPMessage {
 #[TODO] use workarounds?
 		return @get_browser($this->getUserAgent());
 	}
-
-	//------------------------------------------------------------------
+	
+	//----------------------------------------------------------------------
 	// variable overloading
-	//------------------------------------------------------------------
+	//----------------------------------------------------------------------
 
 	function __get($key) {
 		switch ($key) {
@@ -501,12 +501,6 @@ abstract class HTTPMessage {
 				return $this->setParsedContent($value);
 		}
 	}
-	
-	//------------------------------------------------------------------
-	// authorization
-	//------------------------------------------------------------------
-	
-	#[TODO] this
 }
 
 //--------------------------------------------------------------------------
@@ -641,15 +635,18 @@ class HTTPCookieArray implements IteratorAggregate, ArrayAccess, Countable {
 class HTTPRequest extends HTTPMessage {
 	// message data
 	protected $method = 'GET';
-	protected $uri = 'http://www.example.com/';
+	protected $url;
 	protected $version = '1.0';
 
-	function __construct($method = null, $uri = null, $version = null) {
+	function __construct($method = null, $url = null, $version = null) {
+		// create the URL object
+		$this->url = new URL();
+
 		// set variables
 		if ($method !== null)
 			$this->setMethod($method);
-		if ($uri !== null)
-			$this->setURI($uri);
+		if ($url !== null)
+			$this->setURL($url);
 		if ($version !== null)
 			$this->setHTTPVersion($version);
 		// call parent constructor
@@ -657,14 +654,14 @@ class HTTPRequest extends HTTPMessage {
 	}
 
 	function send($followRedirect = true) {
-		// get uri components
-		$uri = $this->getURIComponents();
+		// get url components
+		$url = $this->getURL();
 
 		// request loop
 		do {
 			// serialize request line
 			$request = sprintf("%s %s HTTP/%03.1f\r\n", $this->getMethod(),
-			    $uri->path . ($uri->query !== null ? '?' . $uri->query : ''), $this->getHTTPVersion());
+			    $url->path . ($url->query !== null ? '?' . $url->query : ''), $this->getHTTPVersion());
 			// serialize headers
 			foreach ($this->headers as $key => $header)
 				foreach ((array) $header as $index => $value)
@@ -673,7 +670,7 @@ class HTTPRequest extends HTTPMessage {
 			if ($this->getHTTPVersion() >= 1.1) {
 				// add a Host: header if one isn't set
 				if (!$this->getHeader('Host'))
-					$request .= 'Host: ' . $uri->host . "\r\n";
+					$request .= 'Host: ' . $url->host . "\r\n";
 				// add a Connection: header if one isn't set
 				if (!$this->getHeader('Connection'))
 					$request .= "Connection: close\r\n";
@@ -682,8 +679,8 @@ class HTTPRequest extends HTTPMessage {
 			$request .= "\r\n" . $this->getContent();
 
 			// create the connection handle
-			if (($handle = fsockopen(($uri->scheme == 'https' ? 'ssl://' : '') . $uri->host,
-			    $uri->port ? $uri->port : 80, $errno, $errstr, 30)) === false)
+			if (($handle = fsockopen(($url->scheme == 'https' ? 'ssl://' : '') . $url->host,
+			    $url->port ? $url->port : 80, $errno, $errstr, 30)) === false)
 				throw new Exception('HTTPRequest::send() connection filed [error ' . $errno . ']: ' . $errstr);
 			// submit the request
 			fwrite($handle, $request);
@@ -692,7 +689,7 @@ class HTTPRequest extends HTTPMessage {
 
 			// check for a redirection
 			preg_match('/(?<=\n|^)Location:\s+(.+)\s*?\r\n/i', $response, $matches);
-		} while ($followRedirect && $matches[1] && ($uri = (object) @parse_url($matches[1])));
+		} while ($followRedirect && $matches[1] && ($url = URL::parse($matches[1])));
 
 		// read response
 		if ($this->getHTTPVersion() >= 1.1 && preg_match('/(?<=\n|^)Transfer-Encoding:\s+chunked\s*?\r\n/i', $response)) {
@@ -740,19 +737,19 @@ class HTTPRequest extends HTTPMessage {
 
 		// create a new request object
 		$request = new HTTPRequest($_SERVER['REQUEST_METHOD']);
-		// set the uri
-		$request->setURIComponents(array(
+		// set the url
+		$request->setURL(new URL(array(
 			'scheme' => strtolower(preg_replace('/\/.*$/', '', $_SERVER['SERVER_PROTOCOL'])) .
-			    ($_SERVER['HTTPS'] == 'on' ? 's' : ''),
+			    (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on' ? 's' : ''),
 			'host' => $_SERVER['SERVER_NAME'],
 			'port' => $_SERVER['SERVER_PORT'],
-			'path' => $_SERVER['SCRIPT_URL'],
+			'path' => preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']),
 			'query' => $_SERVER['QUERY_STRING'],
 			'user' => isset($_SERVER['PHP_AUTH_USER']) ?
 			    $_SERVER['PHP_AUTH_USER'] : null,
 			'pass' => isset($_SERVER['PHP_AUTH_PW']) ?
 			    $_SERVER['PHP_AUTH_PW'] : null
-		    ));
+		    )));
 
 		// set headers
 		if (function_exists('getallheaders')) {
@@ -852,38 +849,17 @@ class HTTPRequest extends HTTPMessage {
 	}
 
 	//------------------------------------------------------------------
-	// uri
+	// url
 	//------------------------------------------------------------------
 
-	public function getURI() {
-		// return the http uri
-		return $this->uri;
+	public function getURL() {
+		// return the http url
+		return $this->url;
 	}
 
-	public function setURI($uri) {
-		// set the uri
-		return $this->uri = (string) $uri;
-	}
-
-	public function getURIComponents() {
-		// return componetized object of uri
-		if (($uri = @parse_url($this->uri)) === false)
-			throw new Exception('HTTP URI is malformed.');
-		return (object) $uri;
-	}
-
-	public function setURIComponents($components) {
-		// extract the existing and new components
-		extract((array) $this->getURIComponents());
-		extract($components, EXTR_OVERWRITE);
-
-		// build the URI
-		$this->setURI(
-			($scheme ? $scheme . '://' : '') .
-			($user ? $user . ($pass ? ':' . $pass : '') . '@' : '') .
-			$host . ($port ? ':' . $port : '') . $path .
-			($query ? '?' . $query : '') . ($fragment ? '#' . $fragment : '')
-		    );
+	public function setURL(URL $url) {
+		// set the url
+		return $this->url = $url;
 	}
 
 	//------------------------------------------------------------------
@@ -892,18 +868,20 @@ class HTTPRequest extends HTTPMessage {
 
 	public function getParsedQueryData() {
 		// parse the query
-		return http_parse_query($this->getURIComponents()->query);
+		return http_parse_query($this->getURL()->query);
 	}
 
 	public function setParsedQueryData($data) {
 		// build the query
-		$this->setURIComponents(array('query' => http_build_query($data)));
-		return $this->getURIComponents()->query;
+		$this->getURL()->query = http_build_query($data);
+		return $this->getURL()->query;
 	}
 
 	//------------------------------------------------------------------
 	// accept headers
 	//------------------------------------------------------------------
+
+#[TODO] shrink all this somehow!
 
 	protected function getAcceptedTypes($class, $header) {
 		return array_filter(array_map(array($class, 'parse'),
@@ -1013,15 +991,44 @@ class HTTPRequest extends HTTPMessage {
 		return $this->negotiateType('LanguageType', 'Accept-Language', $available, $default);
 	}
 
+	//----------------------------------------------------------------------
+	// authentication
+	//----------------------------------------------------------------------
+	
+	public function verifyAuthentication($callback) {
+		// get the authorization header
+		if (!($auth = $this->getHeader('Authorization')))
+			return false;
+		
+		// parse the header
+		$type = null;
+		$args = array();
+		if (preg_match('/^\s*Basic\s+(\S+)$/i', $auth, $matches)) {
+			// Basic authentication
+			$type = 'Basic';
+			list ($args['username'], $args['password']) = explode(':', base64_decode($matches[1]), 2);
+		} else if (preg_match('/^\s*Digest\s+(\S+)$/i', $auth, $matches)) {
+			#[TODO] authentication
+		}
+		
+		// call the callback
+		return call_user_func($callback, $type, $args);
+	}
+	
+	#[TODO] further do this. setAuthorization(), authorize()
+
 	//------------------------------------------------------------------
 	// variable overloading
 	//------------------------------------------------------------------
 
 	function __get($key) {
 		switch ($key) {
+			case 'url':
+				return $this->getURL();
+				
 			case 'parsedQueryData':
 				return $this->getParsedQueryData();
-
+				
 			default:
 				return parent::__get($key);
 		}
@@ -1031,18 +1038,18 @@ class HTTPRequest extends HTTPMessage {
 		switch ($key) {
 			case 'parsedQueryData':
 				return $this->setParsedQueryData($value);
-
+				
 			default:
 				return parent::__set($key, $value);
 		}
 	}
 }
 
-//==========================================================================
+//==============================================================================
 // HTTPResponse
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 // see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec5.html#sec6
-//==========================================================================
+//==============================================================================
 
 class HTTPResponse extends HTTPMessage {
 	// message data
@@ -1062,6 +1069,10 @@ class HTTPResponse extends HTTPMessage {
 	}
 
 	public function send() {
+		#[HACK] send IE WWW-Authenticate header first
+		if ($this->getHeader('WWW-Authenticate'))
+			header('WWW-Authenticate: ' . $this->getHeader('WWW-Authenticate'));
+		
 		// submit the status-line
 		header(sprintf('HTTP/%03.1f %03.0d %s', $this->getHTTPVersion(),
 		    $this->getStatusCode(), $this->getStatusMessage()));
@@ -1215,11 +1226,49 @@ class HTTPResponse extends HTTPMessage {
 		// set the cookie
 		$this->cookies->offsetSet($name, $value, $params);
 	}
+
+	//----------------------------------------------------------------------
+	// authentication
+	//----------------------------------------------------------------------
+	
+	public function requestAuthentication($type, $paramHash = array(), $unauthorized = true) {
+		// set the unauthorized header
+		if ($unauthorized)
+			$this->setStatus(401);
+	
+		// format params
+		$params = array();
+		foreach ($paramHash as $key => $value)
+			$params[] = $key . '="' . $value . '"';
+		// request authentication
+		$this->setHeader('WWW-Authenticate', ucwords($type) . ' ' . implode(', ', $params));		
+		return true;
+	}
+
+	//----------------------------------------------------------------------
+	// location
+	//----------------------------------------------------------------------
+	
+	public function getLocation() {
+		return URL::parse($this->getHeader('Location'));
+	}
+	
+	public function setLocation(URL $url, $status = null) {
+		// set the location header
+		$this->setHeader('Location', $url->serialize());
+		// set the redirection status if specified
+		if ($status !== null)
+			$this->setStatus($status);
+	}
+	
+	public function deleteLocation() {
+		$this->deleteHeader('Location');
+	}
 }
 
-//==========================================================================
+//==============================================================================
 // HTTPType base class
-//==========================================================================
+//==============================================================================
 
 #[TODO] better protect properties and parameters?
 #[TODO] support quoted-strings in parameters
@@ -1486,11 +1535,91 @@ class MIMEType extends HTTPType {
 }
 
 //==============================================================================
+// URL class
+//==============================================================================
+
+class URL {
+	protected $components = array();
+	
+	function __construct($components = null) {
+		// set the components
+		if ($components)
+			$this->setComponents($components);
+	}
+
+	//----------------------------------------------------------------------
+	// setters and getters
+	//----------------------------------------------------------------------
+	
+	public function serialize() {
+		// return a serialized URL
+		return ($this->scheme ? $this->scheme . '://' : '') .
+		    ($this->user ? urlencode($this->user) .
+		        ($this->pass ? ':' . urlencode($this->pass) : '') . '@' : '') .
+		    $this->host . ($this->port ? ':' . $this->port : '') . $this->path .
+		    ($this->query ? '?' . $this->query : '') . ($this->fragment ? '#' . $this->fragment : '');
+	}
+	
+	//----------------------------------------------------------------------
+	// components
+	//----------------------------------------------------------------------
+	
+	public function getComponents() {
+		// return the components array
+		return $this->components;
+	}
+
+	public function setComponents($components, $clear = false) {
+		// clear components if specified
+		if ($clear)
+			$this->components = array();
+		// validate and normalize components
+		foreach ((array) $components as $key => $value)
+			if (in_array($key, array('scheme', 'user', 'pass',
+			    'host', 'port', 'path', 'query', 'fragment')))
+				$this->components[$key] = ($value === null ? null : (string) $value);
+	}
+	
+	//----------------------------------------------------------------------
+	// url construction
+	//----------------------------------------------------------------------
+	
+	static public function create($components) {
+		// build a URL from components
+		return new URL($components);
+	}
+
+	static public function parse($url) {
+		// build a componentized url
+		if (($components = @parse_url($url)) === false)
+			return false;
+		return new URL($components);
+	}
+
+	//----------------------------------------------------------------------
+	// magic methods
+	//----------------------------------------------------------------------
+	
+	function __get($key) {
+		return isset($this->components[$key]) ? $this->components[$key] : false;
+	}
+
+	function __set($key, $value) {
+		$this->setComponents(array($key => $value));
+	}
+	
+	function __toString() {
+		return $this->serialize();
+	}
+}
+
+//==============================================================================
 // HTTPStatusException class
 //==============================================================================
 
 #[TODO] allow customization
 #[TODO] pass request object to getHTTPResponse()
+#[TODO] don't embed password in error page!
 
 class HTTPStatusException extends Exception {
 	// HTTP response
@@ -1515,7 +1644,7 @@ class HTTPStatusException extends Exception {
  <body>
   <h1>'. $this->response->getStatusCode() . ' Error: '. $this->response->getStatusMessage() . '</h1>
 ' . ($extendedMessage ? '  <p>' . htmlspecialchars($extendedMessage) . "</p>\n" : '') . '  <hr>
-  <p><strong>' . $request->getMethod() . '</strong> on <em>' . $request->getURI() . '</em></p>
+  <p><strong>' . $request->getMethod() . '</strong> on <em>' . $request->getURL()->serialize() . '</em></p>
  </body>
 </html>');
 		$this->response->setContentType(MIMEType::create('text', 'html'));

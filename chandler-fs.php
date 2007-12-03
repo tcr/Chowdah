@@ -15,7 +15,8 @@ require_once "chowdah.php";
 //==============================================================================
 
 interface ChowdahFSFile {
-	public function getIndexEntry();
+	// get the file's chowdah index entry
+	public function getIndexEntry($create = false);
 }
 
 //------------------------------------------------------------------------------
@@ -33,7 +34,7 @@ class ChowdahFSDocument extends FSDocument implements ChowdahFSFile {
 			// if an entry exists, return it
 			if ($entry = $index->getFile($this->getFilename()))
 				return $entry;
-			// if specified, attempt to create the entry
+			// else, attempt to create the entry
 			if ($create)
 				return $index->addFile($this->getFilename());
 		}
@@ -64,16 +65,14 @@ class ChowdahFSDocument extends FSDocument implements ChowdahFSFile {
 	
 	public function getContentType() {
 		// return this file's content type
-		if ($entry = $this->getIndexEntry(false))
-			$mimetype = MIMEType::parse($entry->getContentType());
-		if (!$mimetype)
-			$mimetype = parent::getContentType();
-		return $mimetype;
+		if ($mimetype = MIMEType::parse($this->getMetadata('content-type')))
+			return $mimetype;
+		return parent::getContentType();
 	}
 
 	public function setContentType(MIMEType $mimetype) {
 		// set this file's content type
-		return $this->getIndexEntry(true)->setContentType($mimetype->serialize(true));
+		return $this->setMetadata('content-type', $mimetype->serialize(true));
 	}
 
 	//----------------------------------------------------------------------
@@ -123,12 +122,12 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 		// if an index exists, return it
 		if ($index = ChowdahIndex::load($path))
 			return $index;
-		// if specified, attempt to create the index
-		if ($create) {
-			file_put_contents($path, '<?xml version="1.0" ?><chowdah-index />');
-			return ChowdahIndex::load($path);
-		}
-		return false;
+		
+		// attempt to create the index
+		if (!$create)
+			return false;
+		file_put_contents($path, '<?xml version="1.0" ?><chowdah-index />');
+		return ChowdahIndex::load($path);
 	}
 
 	public function getIndexEntry($create = false) {
@@ -137,7 +136,7 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 			// if an entry exists, return it
 			if ($entry = $index->getFile($this->getFilename()))
 				return $entry;
-			// if specified, attempt to create the entry
+			// else, attempt to create the entry
 			if ($create)
 				return $index->addFile($this->getFilename());
 		}
@@ -291,11 +290,13 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 // chowdah filesystem resources
 //==============================================================================
 
+#[TODO] have independent FSDocumentResource class?
+
 //------------------------------------------------------------------------------
 // chowdah filesystem document resource
 //------------------------------------------------------------------------------
 
-class ChowdahFSDocumentResource implements ChowdahResource, Document {
+class ChowdahFSDocumentResource implements HTTPResource, Document {
 	// internal document object
 	protected $file;
 	
@@ -352,7 +353,7 @@ class ChowdahFSDocumentResource implements ChowdahResource, Document {
 // chowdah filesystem collection resource
 //------------------------------------------------------------------------------
 
-class ChowdahFSCollectionResource implements ChowdahResource, Collection {
+class ChowdahFSCollectionResource implements HTTPResource, Collection {
 	// internal document object
 	protected $file;
 	
@@ -366,58 +367,66 @@ class ChowdahFSCollectionResource implements ChowdahResource, Collection {
 	//----------------------------------------------------------------------
 
 	public function getChild($filename) {
-		// get the child file
-		$child = $this->file->getChild($filename);
-		// check if there is an entry for the file
-		if ($child && ($entry = $child->getIndexEntry(false)) && ($type = $entry->getResourceType())) {
-			// attempt to load the application
-			if ($resource = Chowdah::createResource($type, array($child)))
-				return $resource;
-			else
-				Chowdah::log('Non-existant resource type "' . $type . '" requested.');
+		// get the child file (while not displaying hidden files)
+		if ($filename[0] == '.' || !($child = $this->file->getChild($filename)))
+			return false;	
+		
+		// check if there is a resource-type for the file
+		if ($child && strlen($type = $child->getMetadata('resource-type'))) {
+			// split $type identifier
+			list ($app, $class) = explode('::', $type, 2);
+		
+			// load the application
+			if (!Chowdah::setCurrentApplication($app))
+				Chowdah::log('Non-existant application "' . $app . '" requested.');
+			// load the resource
+			return Chowdah::createResource($class, array($child));
 		}
-		// return the child object
+		// else return the child object
 		return $child instanceof Collection ?
 		    new ChowdahFSCollectionResource($child) :
 		    new ChowdahFSDocumentResource($child);
 	}
 	
 	public function getChildren($flag = null) {
-		// apply class checking
-		$class = $flag == Collection::ONLY_DOCUMENTS ? 'Document' :
-		    ($flag == Collection::ONLY_COLLECTIONS ? 'Collection' : 'ChowdahResource');
-		// create an array of children
+		// create an array of children resources
 		$children = array();
-		foreach (new DirectoryIterator($this->file->getPath()) as $file)
-			if (($child = $this->getChild($file->getFilename())) && ($child instanceof $class))
-				$children[$file->getFilename()] = $child;
-		ksort($children);
-		return $children;
+		foreach ($this->file->getChildren($flag) as $filename => $file)
+			$children[$filename] = $this->getChild($filename);
+		return array_filter($children);
 	}
 	
 	//----------------------------------------------------------------------
 	// Chowdah resource functions
 	//----------------------------------------------------------------------
 
-#[TODO] directory list should list resources, not files!
-
 	public function handle(HTTPRequest $request) {
+		// check if there is a directory index
+		if (isset($this->file->metadata['index']) &&
+		    ($child = $this->getChild($this->file->metadata['index'])))
+			return $child->handle($request);
+
 		// create the response
 		$response = new HTTPResponse();
 		
 		// handle the request
 		switch ($request->getMethod()) {
 		    case 'GET':
+			// check if directory listing is allowed
+			if (!in_array($this->file->metadata['allow-directory-list'],
+			    array('true', 'yes', '1'), true))
+				throw new HTTPStatusException(403, 'Forbidden', 'Directory listing is forbidden.');
+		
 			// create a basic directory list
 			$response->setContent(
 '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
  <head>
-  <title>Index of ' . $request->getURIComponents()->path . '</title>
+  <title>Index of ' . $request->getURLComponents()->path . '</title>
  </head>
  <body>
-  <h1>Index of ' . $request->getURIComponents()->path . '</h1>
+  <h1>Index of ' . $request->getURLComponents()->path . '</h1>
   <table>
    <thead>
     <th>Name</th><th>Last Modified</th><th>Content Type</th><th>Size</th>
@@ -445,7 +454,7 @@ class ChowdahFSCollectionResource implements ChowdahResource, Collection {
 '   </tbody>
   </table>
   <hr>
-  <p><strong>' . $request->getMethod() . '</strong> on <em>' . $request->getURI() . '</em></p>
+  <p><strong>' . $request->getMethod() . '</strong> on <em>' . $request->getURL() . '</em></p>
  </body>
 </html>');
 			$response->setContentType(new MIMEType('text', 'html'));
@@ -469,11 +478,9 @@ class ChowdahFSCollectionResource implements ChowdahResource, Collection {
 //==============================================================================
 
 class ChowdahIndex {
-	// index path 
+	// index properties
 	protected $path;
-	// xml references
 	protected $doc;
-	protected $xpath;
 	// content cache
 	protected $content;
 	
@@ -487,8 +494,6 @@ class ChowdahIndex {
 		$this->doc->preserveWhiteSpace = false;
 		$this->doc->formatOutput = true;
 		$this->doc->load($this->path);
-		// xpath
-		$this->xpath = new DOMXPath($this->doc);
 		
 		// save a cache of the file content
 		$this->content = $this->doc->saveXML();
@@ -523,8 +528,9 @@ class ChowdahIndex {
 
 	public function getFile($filename) {
 		// get the requested entry
-		foreach ($this->xpath->evaluate('/chowdah-index/file') as $node)
-			if ($node->getAttribute('name') == $filename)
+		$xpath = new DOMXPath($this->doc);
+		foreach ($xpath->evaluate('/chowdah-index/file') as $node)
+			if ($xpath->evaluate('string(.)', $node) == $filename)
 				return new ChowdahIndexFile($node);
 	}
 	
@@ -537,8 +543,7 @@ class ChowdahIndex {
 				return false;
 		
 		// create the file entry
-		$node = $this->doc->createElement('file');
-		$node->setAttribute('name', $filename);
+		$node = $this->doc->createElement('file', $filename);
 		$this->doc->documentElement->appendChild($node);
 		// return the entry
 		return new ChowdahIndexFile($node);
@@ -549,23 +554,20 @@ class ChowdahIndex {
 		if (!$this->getFile($filename))
 			return false;
 		// delete the entry
-		foreach ($this->xpath->evaluate('/chowdah-index/file') as $node)
-			if ($node->getAttribute('name') == $filename)
+		$xpath = new DOMXPath($this->doc);
+		foreach ($xpath->evaluate('/chowdah-index/file') as $node)
+			if ($xpath->evaluate('string(.)', $node) == $filename)
 				$node->parentNode->removeChild($node);
+		return true;
 	}
 
 	public function importFile(ChowdahIndexFile $file, $overwrite = false, $filename = null) {
 		// get the name of the file
 		$filename = strlen($filename) ? $filename : $file->getFilename();
+		
 		// add the file entry
 		if (!($newFile = $this->addFile($filename, $overwrite)))
 			return false;
-		
-		// set the properties
-		if ($resourceType = $file->getResourceType())
-			$newFile->setResourceType($resourceType);
-		if ($contentType = $file->getContentType())
-			$newFile->setResourceType($contentType);
 		// set the metadata
 		foreach ($file->metadata as $key => $value)
 			$newFile->setMetadata($key, $value);
@@ -600,89 +602,45 @@ register_shutdown_function(array('ChowdahIndex', 'saveAll'));
 // Chowdah Index File
 //------------------------------------------------------------------------------
 
+#[TODO] advanced checking for invalid keys
+
 class ChowdahIndexFile {
-	// xml references
+	// properties
 	protected $node;
-	protected $xpath;
+	protected $filename = '';
 
 	function __construct(DOMElement $node) {
-		// save XML references
+		// save DOM node
 		$this->node = $node;
-		$this->xpath = new DOMXPath($this->node->ownerDocument);
+		// save the filename
+		$xpath = new DOMXPath($this->node->ownerDocument);
+		$this->filename = $xpath->evaluate('string(.)', $node);
 	}
 	
 	// filename
 	
 	public function getFilename() {
-		return $this->node->getAttribute('name');
-	}
-
-	// resource type
-	
-	public function getResourceType() {
-		return $this->node->hasAttribute('resource-type') ?
-		    $this->node->getAttribute('resource-type') : false;
-	}
-	
-	public function setResourceType($type) {
-		// validate the type
-		if (!strlen($type))
-			return false;
-		// set the type
-		$this->node->setAttribute('resource-type', $type);
-	}
-	
-	public function deleteResourceType() {
-		// delete the resource type
-		$this->node->removeAttribute('resource-type');
-	}
-
-	// content type
-	
-	public function getContentType() {
-		return $this->node->hasAttribute('content-type') ?
-		    $this->node->getAttribute('content-type') : false;
-	}
-	
-	public function setContentType($type) {
-		// validate the type
-		if (!strlen($type))
-			return false;
-		// set the type
-		$this->node->setAttribute('content-type', $type);
-	}
-	
-	public function deleteContentType() {
-		// delete the resource type
-		$this->node->removeAttribute('content-type');
+		return $this->filename;
 	}
 
 	// metadata
 	
 	public function getMetadata($key) {
-		// scan for a value with this key
-		foreach ($this->xpath->evaluate('meta', $this->node) as $meta)
-			if ($meta->getAttribute('name') == $key)
-				return $this->xpath->evaluate('string(.)', $meta);
-		return false;
+		// get the metadata value
+		return $this->node->hasAttribute($key) ? $this->node->getAttribute($key) : false;
 	}
 	
 	public function setMetadata($key, $value) {
 		// validate the key
 		if (!strlen($key))
 			return false;
-		// remove existing metadata nodes
-		$this->deleteMetadata($key);
-		// add a new metadata node
-		$meta = $this->node->ownerDocument->createElement('meta', $value);
-		$this->node->appendChild($meta)->setAttribute('name', $key);
+		// set a new metadata value
+		return $this->node->setAttribute($key, $value);
 	}
 	
 	public function deleteMetadata($key) {
-		// scan for a value with this key
-		foreach ($this->xpath->evaluate('meta', $this->node) as $meta)
-			if ($meta->getAttribute('name') == $key)
-				$this->node->removeChild($meta);
+		// delete the metadata value
+		return $this->node->removeAttribute($key);
 	}
 	
 	// magic methods
@@ -692,8 +650,8 @@ class ChowdahIndexFile {
 		    case 'metadata':
 			// create an array of metadata
 			$metadata = array();
-			foreach ($this->xpath->evaluate('meta[string-length(@name)]', $this->node) as $meta)
-				$metadata[$meta->getAttribute('name')] = $this->xpath->evaluate('string(.)', $meta);
+			foreach ($this->node->attributes as $attr)
+				$metadata[$attr->name] = $attr->value;
 			return $metadata;
 		}
 	}
@@ -708,8 +666,13 @@ class ChowdahIndexFile {
 // initialize Chowdah
 Chowdah::init();
 
+// get the document root
+$root = new ChowdahFSCollection($_SERVER['DOCUMENT_ROOT']);
+$filename = $root->getFilename();
+$root = new ChowdahFSCollectionResource($root->getParent());
+$root = $root->getChild($filename);
+
 // call the request handler
-$root = new ChowdahFSCollectionResource(new ChowdahFSCollection($_SERVER['DOCUMENT_ROOT']));
 Chowdah::handle(HTTPRequest::getCurrent(), $root)->send();
 
 ?>
