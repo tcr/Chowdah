@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<chowdah>
+  <config>
+    <entry name="log">chowdah.log</entry>
+  </config>
+
+  <apps>
+    <app id="Technocracy">../.application</app>
+  </apps>
+</chowdah>
