@@ -26,6 +26,17 @@ class Chowdah {
 		Chowdah::logStats();
 		register_shutdown_function(array('Chowdah', 'logStats'));
 	}
+	
+	static public function getRootPath() {
+		// get root path
+		return dirname(dirname(__FILE__));
+	}
+	
+	static public function getArgument($name) {
+		// load server args
+		parse_str($_SERVER['argv'][0], $args);
+		return $args[$name];
+	}
 
 	//----------------------------------------------------------------------
 	// error handling
@@ -81,21 +92,22 @@ class Chowdah {
 	// applications
 	//----------------------------------------------------------------------
 	
+#[TODO] separate applications (AGAIN), load config, make sure when loading that the app acutally EXISTS...
 	static public function loadApplication($id) {
 		// search for named application
-		$app = Chowdah::loadConfig()->apps->xpath('app[@id="' . addslashes($id) . '"]')
+		$app = Chowdah::loadConfig()->apps->xpath('app[@id="' . addslashes($id) . '"]');
 		if (!count($app))
-			return false;
+			throw new Exception('Could not load application with the id "' . $id . '".');
 
 		// add autoload function
 		spl_autoload_register(array('Chowdah', 'autoload'));
 		
 		// change current working directory
-		chdir(dirname(__FILE__) . '/' . ((string) $app[0]));
+		chdir(Chowdah::getRootPath() . '/' . ((string) $app[0]));
 		return true;
 	}
 
-#[TODO] legit?
+#[TODO] is this function fr srs? or no?
 	static public function createResource($className, $args = array()) {
 		// check that the class is loaded
 		if (!class_exists($className, false))
@@ -109,8 +121,7 @@ class Chowdah {
 	}
 	
 	static public function autoload($class) {
-		@include $class . '.php';
-		@include 'resources/' . $class . '.php';
+		include_once $class . '.php';
 	}
 	
 	//----------------------------------------------------------------------
@@ -124,8 +135,7 @@ class Chowdah {
 			
 		// log the supplied arguments
 		foreach (func_get_args() as $arg)
-			file_put_contents(dirname($_SERVER['SCRIPT_FILENAME']) . '/'
-			    . $file, (string) $arg . "\n", FILE_APPEND);
+			file_put_contents(Chowdah::getRootPath() . '/' . $file, (string) $arg . "\n", FILE_APPEND);
 	}
 
 	static public function logStats() {
@@ -154,7 +164,7 @@ class Chowdah {
 	const CONFIG_FILE = 'config.xml';
 	
 	static public function loadConfig() {
-		return simplexml_load_file(Chowdah::CONFIG_FILE);
+		return simplexml_load_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
 	}
 	
 	static public function getConfigValue($item) {

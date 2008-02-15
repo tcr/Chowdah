@@ -118,7 +118,7 @@ class HTTPRequest extends HTTPMessage {
 			'host' => $_SERVER['SERVER_NAME'],
 			'port' => $_SERVER['SERVER_PORT'],
 			'path' => preg_replace('/\?.*$/', '', $_SERVER['REQUEST_URI']),
-			'query' => preg_replace('/^[^?]+\?/', '', $_SERVER['REQUEST_URI']),
+			'query' => preg_replace('/^[^?]+\?|^.+$/', '', $_SERVER['REQUEST_URI']),
 			'user' => isset($_SERVER['PHP_AUTH_USER']) ?
 			    $_SERVER['PHP_AUTH_USER'] : null,
 			'pass' => isset($_SERVER['PHP_AUTH_PW']) ?

@@ -1,18 +1,31 @@
 <?php
 
-// i guess
-$GLOBALS['importFolders'] = array();
+//##############################################################################
+// Chowdah | REST Framework
+//##############################################################################
+// written by Tim Ryan (tim-ryan.com)
+// released under the MIT/X License
+// we are not hackers!
+//##############################################################################
+
+$importFolders = array();
 
 function import_autoload($class) {
-	foreach ($GLOBALS['importFolders'] as $folder)
-		@include $folder . '/' . $class . '.php';
+	global $importFolders;
+	foreach ($importFolders as $folder) {
+		if (is_file($folder . '/' . $class . '.php')) {
+			include_once $folder . '/' . $class . '.php';
+			return;
+		}
+	}
 }
 
 spl_autoload_register('import_autoload');
 
 function import($folder) {
 	// add folder to __autoload list
-	$GLOBALS['importFolders'][] = @realpath($folder);
+	global $importFolders;
+	$importFolders[] = @realpath($folder);
 }
 
 //==============================================================================
@@ -26,12 +39,11 @@ import('http');
 // initialize Chowdah
 Chowdah::init();
 
-// find the specified handler
-parse_str($_SERVER['argv'][0], $args);
-if (!strlen($args['handler']))
-	throw new HTTPStatusException(500, null, 'No handler could be found for the Chowdah application.');
-// import handler
-import ('handlers/' . $args['handler']);
+// get specified handler
+if (!($handler = Chowdah::getArgument('handler')))
+	$handler = 'default';
+// import handler files
+import('handlers/' . $handler);
 
 // call handler
 Handler::call(HTTPRequest::getCurrent());

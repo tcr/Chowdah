@@ -5,6 +5,6 @@
   </config>
 
   <apps>
-    <app id="Technocracy">../.application</app>
+    <app id="Mache">../.mache</app>
   </apps>
 </chowdah>
