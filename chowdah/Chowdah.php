@@ -8,28 +8,18 @@
 // we are not hackers!
 //##############################################################################
 
-#[TODO] config control
-
 //==============================================================================
 // Chowdah class
 //==============================================================================
 
 class Chowdah {
-#[TODO] eliminate these using config:
-	// class constants
-	const LOG_FILE = 'chowdah.log';
-	const APPLICATIONS_INDEX = 'applications.xml';
-	
 	//----------------------------------------------------------------------
 	// initialization functions
 	//----------------------------------------------------------------------
 
 	static public function init() {
-		// add autoload function
-#		spl_autoload_register(array('Chowdah', 'autoload'));
-		
 		// exception/error handling
-#		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
+#[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
 		set_exception_handler(array('Chowdah', 'exceptionHandler'));
 		
 		// stat logging
@@ -91,19 +81,21 @@ class Chowdah {
 	// applications
 	//----------------------------------------------------------------------
 	
-	static public function setCurrentApplication($id) {
-		// load applications file
-		$apps = simplexml_load_file(dirname(__FILE__) . '/' . Chowdah::APPLICATIONS_INDEX);
+	static public function loadApplication($id) {
 		// search for named application
-		$app = $apps->xpath('/chowdah-applications/application[@id="' . $id . '"]');
+		$app = Chowdah::loadConfig()->apps->xpath('app[@id="' . addslashes($id) . '"]')
 		if (!count($app))
 			return false;
+
+		// add autoload function
+		spl_autoload_register(array('Chowdah', 'autoload'));
 		
 		// change current working directory
-		chdir(dirname(__FILE__) . '/' . $app[0]);
+		chdir(dirname(__FILE__) . '/' . ((string) $app[0]));
 		return true;
 	}
-	
+
+#[TODO] legit?
 	static public function createResource($className, $args = array()) {
 		// check that the class is loaded
 		if (!class_exists($className, false))
@@ -116,20 +108,24 @@ class Chowdah {
 		    $reflectionClass->newInstance(); 
 	}
 	
-#	static public function autoload($class) {
-#		require_once $class . '.php';
-#	}
+	static public function autoload($class) {
+		@include $class . '.php';
+		@include 'resources/' . $class . '.php';
+	}
 	
 	//----------------------------------------------------------------------
 	// logging
 	//----------------------------------------------------------------------
 
-#[TODO] use specified log file
 	static public function log() {
+		// check if a log file was requested
+		if (!strlen($file = Chowdah::getConfigValue('log')))
+			return false;
+			
 		// log the supplied arguments
 		foreach (func_get_args() as $arg)
 			file_put_contents(dirname($_SERVER['SCRIPT_FILENAME']) . '/'
-			    . Chowdah::LOG_FILE, (string) $arg . "\n", FILE_APPEND);
+			    . $file, (string) $arg . "\n", FILE_APPEND);
 	}
 
 	static public function logStats() {
@@ -146,6 +142,24 @@ class Chowdah {
 	   
 		// save stat data
 		$start_time = time() + microtime();
+	}
+	
+	//----------------------------------------------------------------------
+	// configuration
+	//----------------------------------------------------------------------
+	
+#[TODO] further config control
+
+	// configuration location
+	const CONFIG_FILE = 'config.xml';
+	
+	static public function loadConfig() {
+		return simplexml_load_file(Chowdah::CONFIG_FILE);
+	}
+	
+	static public function getConfigValue($item) {
+		$entry = Chowdah::loadConfig()->config->xpath('entry[@name="' . $item . '"]');
+		return (string) $entry[0];
 	}
 }
 
