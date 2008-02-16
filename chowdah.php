@@ -39,11 +39,10 @@ import('http');
 // initialize Chowdah
 Chowdah::init();
 
-// get specified handler
-if (!($handler = Chowdah::getArgument('handler')))
-	$handler = 'default';
-// import handler files
-import('handlers/' . $handler);
+// load requested Application
+if (!Chowdah::getArgument('app'))
+	throw new Exception('No Chowdah application was specified.');
+Chowdah::loadApplication(Chowdah::getArgument('app'));
 
 // call handler
 Handler::call(HTTPRequest::getCurrent());
