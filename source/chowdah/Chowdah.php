@@ -92,18 +92,14 @@ class Chowdah {
 	// applications
 	//----------------------------------------------------------------------
 	
-#[TODO] separate applications (AGAIN), load config, make sure when loading that the app acutally EXISTS...
-	static public function loadApplication($id) {
-		// search for named application
-		$app = Chowdah::loadConfig()->apps->xpath('app[@id="' . addslashes($id) . '"]');
-		if (!count($app))
-			throw new Exception('Could not load application with the id "' . $id . '".');
+#[TODO] make sure when loading that the app acutally exists...
 
+	static public function loadApplication($path) {
 		// add autoload function
 		spl_autoload_register(array('Chowdah', 'autoload'));
 		
 		// change current working directory
-		chdir(Chowdah::getRootPath() . '/' . ((string) $app[0]));
+		chdir(Chowdah::getRootPath() . '/' . $path);
 		return true;
 	}
 
@@ -145,7 +141,7 @@ class Chowdah {
 	// configuration
 	//----------------------------------------------------------------------
 	
-#[TODO] further config control
+#[TODO] further config file control
 
 	// configuration location
 	const CONFIG_FILE = 'config.xml';
@@ -155,7 +151,7 @@ class Chowdah {
 	}
 	
 	static public function getConfigValue($item) {
-		$entry = Chowdah::loadConfig()->config->xpath('entry[@name="' . $item . '"]');
+		$entry = Chowdah::loadConfig()->xpath('entry[@name="' . $item . '"]');
 		return (string) $entry[0];
 	}
 }
