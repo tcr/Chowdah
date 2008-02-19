@@ -107,22 +107,9 @@ class Chowdah {
 		return true;
 	}
 
-#[TODO] is this function fr srs? or no?
-	static public function createResource($className, $args = array()) {
-		// check that the class is loaded
-		if (!class_exists($className, false))
-			require_once 'resources/' . $className . '.php';
-			
-		// create the new resource
-		$reflectionClass = new ReflectionClass($className);
-		return $reflectionClass->getConstructor() ?
-		    $reflectionClass->newInstanceArgs($args) :
-		    $reflectionClass->newInstance(); 
-	}
-	
 	static public function autoload($class) {
 		include_once $class . '.php';
-	}
+	}	
 	
 	//----------------------------------------------------------------------
 	// logging

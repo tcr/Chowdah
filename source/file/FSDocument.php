@@ -32,7 +32,13 @@ class FSDocument extends FSFile implements WriteableDocument {
 		else if (function_exists('finfo_open'))
 			return MIMEType::parse(finfo::file($this->getPath(),
 			    FILEINFO_MIME, $this->getContext()));
-		else if ($mimetype = MIMEType::parse(@exec('file -bi ' . escapeshellarg($this->getPath()))))
+#[TODO] figure out a sane directive for this
+		else if (is_file('/etc/mime.types')) {
+			$ext = array_pop(explode('.', $this->path));
+			if (preg_match('/^([^#]\S+)[\t ]+.*' . $ext . '.*$/m', file_get_contents('/etc/mime.types'), $m))
+				return MIMEType::parse($m[1]);
+		}
+		if ($mimetype = MIMEType::parse(@exec('file -bi ' . escapeshellarg($this->getPath()))))
 			return $mimetype;
 		else
 			return new MIMEType('application', 'octet-stream');

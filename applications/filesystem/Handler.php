@@ -8,8 +8,10 @@
 // we are not hackers!
 //##############################################################################
 
-#[TODO] have independent FSDocumentResource class?
+#[TODO] extend from independent FSDocumentResource class?
 #[TODO] creating resource from DOCUMENT_ROOT could throw exception, so...
+
+import('resources');
 
 class Handler {
 	public static function call(HTTPRequest $request) {
