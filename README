@@ -1,5 +1,27 @@
-Chowdah | REST Framework
 --------------------------------------------------------------------------------
-written by Tim Ryan (tim-ryan.com)
-released under the GPL
-we are not hackers!
+ Chowdah | REST Framework for PHP5
+--------------------------------------------------------------------------------
+
+Chowdah is a framework for developing REST applications in PHP5. It contains a
+library to manipulate HTTP requests and responses, create "resource" objects 
+which can be manipulated via HTTP calls, and manipulate files, documents, and
+collection objects.
+
+To get started on an Apache server, extract the "source" directory to where you
+want the Chowdah library to be located. To load an application, create an
+.htaccess file rewriting all requests to the folder to the Chowdah handling
+script. For example:
+
+     # rewrite to Chowdah handler
+     RewriteEngine On
+     RewriteRule ^.* chowdah/chowdah.php?app=../application/path
+     
+The "../application/path" segment should point to the path of the application to
+be run (relative to the chowdah folder). To view sample applications, take a
+look at the "applications" folder of this archive.
+
+For more information, visit the website at:
+
+     http://code.google.com/p/chowdah/
+
+Chowdah is released under the GNU General Public License v2 or later.

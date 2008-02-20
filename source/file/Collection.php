@@ -19,8 +19,8 @@ interface Collection {
 	
 	// getChildren flags
 #	public function getChildren($flags = null);
-#	const ONLY_DOCUMENTS = 1;
-#	const ONLY_COLLECTIONS = 2;
+	const ONLY_DOCUMENTS = 1;
+	const ONLY_COLLECTIONS = 2;
 }
 
 ?>

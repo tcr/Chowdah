@@ -28,15 +28,15 @@ class FSDocument extends FSFile implements WriteableDocument {
 	
 	public function getContentType() {
 		// attempt to read the content type
-		if (function_exists('mime_content_type'))
-			return mime_content_type($this->getPath());
+		if (function_exists('mime_content_type') && mime_content_type($this->getPath()))
+			return MIMEType::parse(mime_content_type($this->getPath()));
 		else if (function_exists('finfo_open'))
 			return MIMEType::parse(finfo::file($this->getPath(),
 			    FILEINFO_MIME, $this->getContext()));
 #[TODO] make mention of this directive
-		else if (Chowdah::getConfigValue('mime.types')) {
+		if ($file = Chowdah::getConfigValue('mime.types')) {
 			$ext = array_pop(explode('.', $this->path));
-			if (preg_match('/^([^#]\S+)[\t ]+.*' . $ext . '.*$/m', file_get_contents(Chowdah::getConfigValue('log')), $m))
+			if (preg_match('/^([^#]\S+)[\t ]+.*' . $ext . '.*$/m', file_get_contents($file), $m))
 				return MIMEType::parse($m[1]);
 		}
 		if ($mimetype = MIMEType::parse(@exec('file -bi ' . escapeshellarg($this->getPath()))))
