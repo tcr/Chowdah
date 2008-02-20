@@ -1,8 +1,9 @@
 <?php
 
-//--------------------------------------------------------------------------
-// cookies array object
-//--------------------------------------------------------------------------
+/**
+ * HTTP Cookies Array
+ * @package HTTP
+ */
 
 class HTTPCookieArray implements IteratorAggregate, ArrayAccess, Countable {
 	protected $message;

@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// WriteableDocument interface
-//------------------------------------------------------------------------------
+/**
+ * Writeable Document Interface
+ * @package File
+ */
 
 interface WriteableDocument extends Document {
 	public function setContent($data);

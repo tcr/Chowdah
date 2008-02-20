@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * HTTP Resource Base Class
+ * @package Chowdah
+ */
+
 abstract class HTTPResourceBase implements HTTPResource {
 	// allowed HTTP methods
 	protected $methods = array('OPTIONS');

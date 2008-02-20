@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// WriteableCollection interface
-//------------------------------------------------------------------------------
+/**
+ * Writeable Collection Interface
+ * @package File
+ */
 
 interface WriteableCollection extends Collection {	
 	// file modification	

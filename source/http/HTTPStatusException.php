@@ -1,8 +1,9 @@
 <?php
 
-//==============================================================================
-// HTTPStatusException class
-//==============================================================================
+/**
+ * HTTP Status Exception
+ * @package HTTP
+ */
 
 #[TODO] allow customization
 #[TODO] pass request object to getHTTPResponse()

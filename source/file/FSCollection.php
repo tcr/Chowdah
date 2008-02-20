@@ -1,8 +1,9 @@
 <?php
 
-//==========================================================================
-// FSCollection class
-//==========================================================================
+/**
+ * Filesystem Collection Class
+ * @package File
+ */
 
 class FSCollection extends FSFile implements WriteableCollection, ArrayAccess, IteratorAggregate, Countable {
 	function __construct($path, $context = null) {

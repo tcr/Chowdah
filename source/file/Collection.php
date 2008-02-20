@@ -1,17 +1,26 @@
 <?php
 
-//------------------------------------------------------------------------------
-// Collection interface
-//------------------------------------------------------------------------------
+/**
+ * Collection Interface
+ *
+ * A Collection is an object which has children, which can be retrieved via the
+ * <kbd>getChild</kbd> method.
+ * @package File
+ */
 
 interface Collection {
-	// children
-#	public function getChildren($flags = null);
+	/**
+	 * Get a child object.
+	 *
+	 * Gets a child of this Collection with the speicifed filename.
+	 * @param string The file name of the child to be returned.
+	 */
 	public function getChild($filename);
 	
 	// getChildren flags
-	const ONLY_DOCUMENTS = 1;
-	const ONLY_COLLECTIONS = 2;
+#	public function getChildren($flags = null);
+#	const ONLY_DOCUMENTS = 1;
+#	const ONLY_COLLECTIONS = 2;
 }
 
 ?>

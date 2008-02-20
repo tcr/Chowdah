@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// WriteableFile interface
-//------------------------------------------------------------------------------
+/**
+ * Writeable File Interface
+ * @package File
+ */
 
 interface WriteableFile extends File {
 	// properties

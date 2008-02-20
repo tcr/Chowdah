@@ -1,8 +1,9 @@
 <?php 
 
-//------------------------------------------------------------------------------
-// filesystem collection resource
-//------------------------------------------------------------------------------
+/**
+ * Filesystem Collection Resource
+ * @package File
+ */
 
 class FSCollectionResource extends HTTPResourceBase implements Collection {
 	//----------------------------------------------------------------------

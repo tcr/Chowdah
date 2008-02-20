@@ -1,8 +1,9 @@
 <?php
 
-//==============================================================================
-// HTTPType base class
-//==============================================================================
+/**
+ * HTTP Type Base Class
+ * @package HTTP
+ */
 
 #[TODO] better protect properties and parameters?
 #[TODO] support quoted-strings in parameters

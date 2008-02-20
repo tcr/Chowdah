@@ -1,8 +1,9 @@
 <?php
 
-//==========================================================================
-// FSDocument class
-//==========================================================================
+/**
+ * Filesystem Document Class
+ * @package File
+ */
 
 class FSDocument extends FSFile implements WriteableDocument {
 	function __construct($path, $context = null) {

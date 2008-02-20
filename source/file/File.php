@@ -1,20 +1,12 @@
 <?php
 
-//##############################################################################
-// File Classes for PHP5 (file.php)
-// allows manipulation of files and the filesystem
-//##############################################################################
-// written by Tim Ryan (tim-ryan.com)
-// released under the MIT/X License
-// we are not hackers!
-//##############################################################################
-
+/**
+ * File Interface
+ * @package File
+ */
+ 
 #[TODO] ->clone($source) function
 #[TODO] better utilize SPL functions
-
-//------------------------------------------------------------------------------
-// File interface
-//------------------------------------------------------------------------------
 
 interface File {
 	// file relations

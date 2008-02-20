@@ -1,10 +1,11 @@
 <?php
 
-//==========================================================================
-// EncodingType class
-//--------------------------------------------------------------------------
-// see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.3
-//==========================================================================
+/**
+ * Encoding Type
+ *
+ * see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.3
+ * @package HTTP
+ */
 
 class EncodingType extends HTTPType {
 	// class overrides

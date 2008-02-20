@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// VirtualFile
-//------------------------------------------------------------------------------
+/**
+ * Virtual File Abstract Class
+ * @package File
+ */
 
 abstract class VirtualFile implements WriteableFile {
 	// file properties

@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// VirtualDocument
-//------------------------------------------------------------------------------
+/**
+ * Virtual Document Class
+ * @package File
+ */
 
 class VirtualDocument extends VirtualFile implements WriteableDocument {
 	// file properties

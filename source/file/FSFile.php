@@ -1,8 +1,9 @@
 <?php
 
-//==========================================================================
-// FSFile class
-//==========================================================================
+/**
+ * Filesystem File Abstract Class
+ * @package File
+ */
 
 abstract class FSFile implements WriteableFile {
 	// file path

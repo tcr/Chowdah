@@ -1,10 +1,11 @@
 <?php
 
-//==========================================================================
-// LanguageType class
-//--------------------------------------------------------------------------
-// see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
-//==========================================================================
+/**
+ * Language Type
+ *
+ * see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4
+ * @package HTTP
+ */
 
 class LanguageType extends HTTPType {
 	// class overrides

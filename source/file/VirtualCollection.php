@@ -1,8 +1,9 @@
 <?php
 
-//------------------------------------------------------------------------------
-// VirtualCollection
-//------------------------------------------------------------------------------
+/**
+ * Virtual Collection Class
+ * @package File
+ */
 
 class VirtualCollection extends VirtualFile implements WriteableCollection, ArrayAccess, IteratorAggregate, Countable {
 	// file properties

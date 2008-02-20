@@ -1,8 +1,9 @@
 <?php
 
-//--------------------------------------------------------------------------
-// headers array object
-//--------------------------------------------------------------------------
+/**
+ * HTTP Headers Array
+ * @package HTTP
+ */
 
 class HTTPHeaderArray extends ArrayObject {
 	public function offsetExists($index) {
