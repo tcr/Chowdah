@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<chowdah-config>
+  <entry name="log">../request.log</entry>
+  <entry name="mime.types">/path/to/mime.types</entry>
+</chowdah-config>

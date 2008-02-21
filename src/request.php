@@ -4,7 +4,6 @@
 // Chowdah | REST Framework
 //##############################################################################
 // written by Tim Ryan (tim-ryan.com)
-// released under the MIT/X License
 // we are not hackers!
 //##############################################################################
 
@@ -13,10 +12,8 @@ $importFolders = array();
 function import_autoload($class) {
 	global $importFolders;
 	foreach ($importFolders as $folder) {
-		if (is_file($folder . '/' . $class . '.php')) {
+		if (is_file($folder . '/' . $class . '.php'))
 			include_once $folder . '/' . $class . '.php';
-			return;
-		}
 	}
 }
 
@@ -33,16 +30,12 @@ function import($folder) {
 //==============================================================================
 
 import('chowdah');
-import('file');
-import('http');
+import('chowdah/file');
+import('chowdah/http');
 
-// initialize Chowdah
+// load Chowdah
 Chowdah::init();
-
-// load requested Application
-if (!Chowdah::getArgument('app'))
-	throw new Exception('No Chowdah application was specified.');
-Chowdah::loadApplication(Chowdah::getArgument('app'));
+Chowdah::loadApplication(getcwd());
 
 // call handler
 Handler::call(HTTPRequest::getCurrent());

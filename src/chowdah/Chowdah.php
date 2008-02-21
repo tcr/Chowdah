@@ -22,7 +22,7 @@ abstract class Chowdah {
 	
 	static public function getRootPath() {
 		// get root path
-		return dirname(dirname(__FILE__));
+		return dirname(__FILE__);
 	}
 	
 	static public function getArgument($name) {
@@ -88,17 +88,14 @@ abstract class Chowdah {
 #[TODO] make sure when loading that the app acutally exists...
 
 	static public function loadApplication($path) {
-		// add autoload function
-		spl_autoload_register(array('Chowdah', 'autoload'));
-		
-		// change current working directory
-		chdir(Chowdah::getRootPath() . '/' . $path);
+		// load Chowdah path (to make relative paths work)
+		chdir(Chowdah::getRootPath());
+		// change working directory to application path
+		chdir($path);
+		// import classes from this directory
+		import('.');
 		return true;
 	}
-
-	static public function autoload($class) {
-		include_once $class . '.php';
-	}	
 	
 	//----------------------------------------------------------------------
 	// logging
@@ -133,8 +130,6 @@ abstract class Chowdah {
 	//----------------------------------------------------------------------
 	// configuration
 	//----------------------------------------------------------------------
-	
-#[TODO] further config file control
 
 	// configuration location
 	const CONFIG_FILE = 'config.xml';
@@ -143,9 +138,41 @@ abstract class Chowdah {
 		return simplexml_load_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
 	}
 	
-	static public function getConfigValue($item) {
-		$entry = Chowdah::loadConfig()->xpath('entry[@name="' . $item . '"]');
+	static public function saveConfig(SimpleXMLElement $config) {
+		// write config file
+		$doc = new DOMDocument();
+		$doc->preserveWhiteSpace = false;
+		$doc->formatOutput = true;
+		$doc->loadXML($config->asXML());
+		return (bool) $doc->save(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+	}
+	
+	static public function getConfigValue($name) {
+		$entry = Chowdah::loadConfig()->xpath('entry[@name="' . $name . '"]');
 		return (string) $entry[0];
+	}
+	
+	static public function setConfigValue($name, $value) {
+		// delete old entries
+		Chowdah::deleteConfigValue($name);
+		// add new entry
+		$config = Chowdah::loadConfig();
+		$entry = $config->addChild('entry', $value);
+		$entry['name'] = $name;
+		
+		// write document
+		return Chowdah::saveConfig($config);
+	}
+	
+	static public function deleteConfigValue($name) {
+		// delete entries
+		$config = Chowdah::loadConfig();
+		$entry = $config->xpath('entry[@name="' . $name . '"]');
+		foreach ($entry as $item)
+			unset($item[0]);
+			
+		// write document
+		return Chowdah::saveConfig($config);
 	}
 }
 
