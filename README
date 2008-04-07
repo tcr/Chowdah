@@ -7,20 +7,33 @@ library to manipulate HTTP requests and responses, create "resource" objects
 which can be manipulated via HTTP calls, and manipulate files, documents, and
 collection objects.
 
-To get started on an Apache server, extract the "source" directory to where you
-want the Chowdah library to be located. To load an application, create an
-.htaccess file rewriting all requests to the folder to the Chowdah handling
-script. For example:
+To get started on an Apache server, extract the "chowdah" directory to where you
+want the Chowdah library to be located. In your application folder, create a
+request-handling script akin to the following:
 
-     # rewrite to Chowdah handler
+	<?php
+	
+	// load Chowdah class
+	require 'chowdah/Chowdah.php';
+	
+	// do other stuff here...
+	
+	// load Chowdah
+	Chowdah::init();
+	Chowdah::loadApplication(getcwd());
+	Chowdah::handle(HTTPRequest::getCurrent(), new RootResource())->send();
+	
+	?>
+
+Then in your root folder, create an .htaccess file rewriting all requests to the
+request handling script. For example:
+
+     # rewrite to request handler
      RewriteEngine On
-     RewriteRule ^.* chowdah/chowdah.php?app=../application/path
+     RewriteRule ^.* .application/request.php
      
-The "../application/path" segment should point to the path of the application to
-be run (relative to the chowdah folder). To view sample applications, take a
-look at the "applications" folder of this archive.
-
-For more information, visit the website at:
+To view sample applications, look in the "apps" folder of this archive. For more
+information, visit the website at:
 
      http://code.google.com/p/chowdah/
 
