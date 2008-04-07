@@ -11,6 +11,14 @@ abstract class Chowdah {
 	//----------------------------------------------------------------------
 
 	static public function init() {
+		// setup import loader
+		spl_autoload_register('import_autoload');
+
+		// import classes
+		import(Chowdah::getRootPath());
+		import(Chowdah::getRootPath() . '/file');
+		import(Chowdah::getRootPath() . '/http');
+
 		// exception/error handling
 #[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
 		set_exception_handler(array('Chowdah', 'exceptionHandler'));
@@ -103,7 +111,7 @@ abstract class Chowdah {
 
 	static public function log() {
 		// check if a log file was requested
-		if (!strlen($file = Chowdah::getConfigValue('log')))
+		if (!strlen($file = Chowdah::getConfigValue('request_log')))
 			return false;
 			
 		// log the supplied arguments
@@ -132,48 +140,62 @@ abstract class Chowdah {
 	//----------------------------------------------------------------------
 
 	// configuration location
-	const CONFIG_FILE = 'config.xml';
+	const CONFIG_FILE = 'config.ini';
 	
 	static public function loadConfig() {
-		return simplexml_load_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+		return parse_ini_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
 	}
 	
-	static public function saveConfig(SimpleXMLElement $config) {
+	static public function saveConfig($config) {
 		// write config file
-		$doc = new DOMDocument();
-		$doc->preserveWhiteSpace = false;
-		$doc->formatOutput = true;
-		$doc->loadXML($config->asXML());
-		return (bool) $doc->save(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+		$ini = '';
+		foreach ($config as $name => $value)
+			$ini .= $name . ' = "' . addslashes($value) . '"' . "\n";
+		return file_put_contents(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE, $ini);
 	}
 	
 	static public function getConfigValue($name) {
-		$entry = Chowdah::loadConfig()->xpath('entry[@name="' . $name . '"]');
-		return (string) $entry[0];
+		$config = Chowdah::loadConfig();
+		return $config[$name];
 	}
 	
 	static public function setConfigValue($name, $value) {
-		// delete old entries
-		Chowdah::deleteConfigValue($name);
 		// add new entry
 		$config = Chowdah::loadConfig();
-		$entry = $config->addChild('entry', $value);
-		$entry['name'] = $name;
-		
+		$config[$name] = $value;
+
 		// write document
 		return Chowdah::saveConfig($config);
 	}
 	
 	static public function deleteConfigValue($name) {
-		// delete entries
+		// delete entry
 		$config = Chowdah::loadConfig();
-		$entry = $config->xpath('entry[@name="' . $name . '"]');
-		foreach ($entry as $item)
-			unset($item[0]);
+		unset($config[$name]);
 			
 		// write document
 		return Chowdah::saveConfig($config);
 	}
+}
+
+//------------------------------------------------------------------------------
+// import files
+//------------------------------------------------------------------------------
+
+$importFolders = array();
+
+function import_autoload($class) {
+	global $importFolders;
+	foreach ($importFolders as $folder) {
+		if (is_file($folder . '/' . $class . '.php'))
+			include_once $folder . '/' . $class . '.php';
+	}
+}
+
+function import($folder) {
+	// add folder to __autoload list
+	global $importFolders;
+	$importFolders[] = @realpath($folder);
 }
 
 ?>

@@ -11,10 +11,12 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	//----------------------------------------------------------------------
 	
 	protected $file;
+	protected $index = true;
 	
-	function __construct(FSCollection $file) {
-		// save the internal object
+	function __construct(FSCollection $file, $index = true) {
+		// save the internal object and options
 		$this->file = $file;
+		$this->index = (bool) $index;
 	}
 	
 	//----------------------------------------------------------------------
@@ -24,6 +26,10 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	protected $methods = array('GET', 'OPTIONS');
 	
 	public function GET(HTTPRequest $request) {
+		// if index is disabled, throw a 403 error
+		if (!$this->index)
+			throw new HTTPStatusException(HTTPResponse::STATUS_FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
+	
 		// create the response
 		$response = new HTTPResponse();
 		
@@ -44,7 +50,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
    <tbody>
     <tr><td colspan="3"><a href="../">Parent Directory</a></td></tr>');
 		// add collections
-		foreach ($this->file->getChildren(Collection::ONLY_COLLECTIONS) as $child => $file)
+		foreach ($this->file->getChildren(FiniteCollection::CHILD_COLLECTIONS) as $child => $file)
 			$response->appendContent(
 			    '   <tr><td>[DIR] <a href="' . $child . '/">' . $child . '</a></td>' .
 			    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
@@ -52,7 +58,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 			    '<td>-</td>' .
 			    "</tr>\n");
 		// add documents
-		foreach ($this->file->getChildren(Collection::ONLY_DOCUMENTS) as $child => $file)
+		foreach ($this->file->getChildren(FiniteCollection::CHILD_DOCUMENTS) as $child => $file)
 			$response->appendContent(
 			    '   <tr><td>[FILE] <a href="' . $child . '">' . $child . '</a></td>' .
 			    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
@@ -82,7 +88,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 		
 		// return the child object
 		return $child instanceof Collection ?
-		    new FSCollectionResource($child) :
+		    new FSCollectionResource($child, $this->index) :
 		    new FSDocumentResource($child);
 	}
 }

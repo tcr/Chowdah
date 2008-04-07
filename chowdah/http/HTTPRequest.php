@@ -130,10 +130,9 @@ class HTTPRequest extends HTTPMessage {
 			foreach (getallheaders() as $key => $value)
 				$request->setHeader($key, $value);
 		} else {
-			// HTTP Authorization header hack
-#[TODO] generalize this?
-			if (!$_SERVER['HTTP_AUTHORIZATION'])
-				$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER['REDIRECT_REMOTE_USER'];
+			// HTTP Authorization header workaround
+			if (!$_SERVER['HTTP_AUTHORIZATION'] && Chowdah::getConfigValue('auth_header_key'))
+				$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER[Chowdah::getConfigValue('auth_header_key')];
 
 			// extract headers from $_SERVER array
 			// (entries formatted as HTTP_* are interpreted as HTTP headers)

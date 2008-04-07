@@ -34,9 +34,9 @@ class FSDocument extends FSFile implements WriteableDocument {
 			return MIMEType::parse(finfo::file($this->getPath(),
 			    FILEINFO_MIME, $this->getContext()));
 #[TODO] make mention of this directive
-		if ($file = Chowdah::getConfigValue('mime.types')) {
+		if ($file = Chowdah::getConfigValue('mime_types')) {
 			$ext = array_pop(explode('.', $this->path));
-			if (preg_match('/^([^#]\S+)[\t ]+.*' . $ext . '.*$/m', file_get_contents($file), $m))
+			if (preg_match('/^([^#]\S+)[\t ]+.*\b' . $ext . '\b.*$/m', file_get_contents($file), $m))
 				return MIMEType::parse($m[1]);
 		}
 		if ($mimetype = MIMEType::parse(@exec('file -bi ' . escapeshellarg($this->getPath()))))

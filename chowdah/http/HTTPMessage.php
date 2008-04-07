@@ -422,6 +422,7 @@ abstract class HTTPMessage {
 			$document->setPath(basename($this->getURL()->path));
 		$document->setContentType($this->getContentType());
 		$document->setContent($this->getDecodedContent());
+#[TODO] add last-modified time reading!
 		return $document;
 	}
 

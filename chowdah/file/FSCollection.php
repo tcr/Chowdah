@@ -5,7 +5,7 @@
  * @package File
  */
 
-class FSCollection extends FSFile implements WriteableCollection, ArrayAccess, IteratorAggregate, Countable {
+class FSCollection extends FSFile implements WriteableCollection, FiniteCollection, ArrayAccess, IteratorAggregate, Countable {
 	function __construct($path, $context = null) {
 		// call parent constructor
 		parent::__construct($path, $context);
@@ -28,8 +28,8 @@ class FSCollection extends FSFile implements WriteableCollection, ArrayAccess, I
 	
 	public function getChildren($flag = null) {
 		// apply class checking
-		$class = $flag == Collection::ONLY_DOCUMENTS ? 'Document' :
-		    ($flag == Collection::ONLY_COLLECTIONS ? 'Collection' : 'File');
+		$class = $flag == FiniteCollection::CHILD_DOCUMENTS ? 'Document' :
+		    ($flag == FiniteCollection::CHILD_COLLECTIONS ? 'Collection' : 'File');
 		// create an array of children
 		$children = array();
 		foreach (new DirectoryIterator($this->getPath()) as $file)
