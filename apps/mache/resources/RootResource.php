@@ -6,10 +6,14 @@ class RootResource extends MacheResourceBase implements Collection {
 	//----------------------------------------------------------------------
 	
 	protected $strip;
+	protected $collection;
 
 	function __construct() {
 		// get main strip
 		$this->strip = new Strip('');
+		
+		// get the internal collection object
+		$this->collection = new FSCollectionResource(new FSCollection('..'), false);
 	}
 	
 	//----------------------------------------------------------------------
@@ -47,9 +51,12 @@ class RootResource extends MacheResourceBase implements Collection {
 	public function getChild($filename) {
 		// get the child resource
 		switch ($filename) {
-		    case 'strips': return new StripsResource();
-		    case 'styles': return new FSCollectionResource(new FSCollection('../styles'));
-		    default: return false;
+		    case 'strips':
+			return new StripsResource();
+	
+		    default:
+			// fallback to existing filesystem
+			return $this->collection->getChild($filename);
 		}
 	}
 }

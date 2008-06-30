@@ -17,7 +17,7 @@
               <dd><input type="text" name="tags" /></dd>
           </dl>
 
-          <p><input type="submit" value="Create" />&#160;<a href=".">[Cancel]</a></p>
+          <p class="actions"><input type="submit" value="Create" />&#160;<a href=".">Cancel</a></p>
         </form>
       </xsl:when>
       <xsl:otherwise>
@@ -34,7 +34,7 @@
           </xsl:for-each>
         </ul>
 
-        <p id="actions"><a href="?create">[Create]</a></p>
+        <p class="actions"><a href="?create">Create</a></p>
 
         <h3>Search</h3>
         <form method="get" action=".">
@@ -46,7 +46,7 @@
             <dt><label>Tags:</label></dt>
               <dd><input type="text" name="tags" value="{@tags}" /></dd>
           </dl>
-          <p><input type="submit" value="Search" />&#160;<a href=".">[Clear Search]</a></p>
+          <p class="class"><input type="submit" value="Search" />&#160;<a href=".">Clear Search</a></p>
         </form>        
       </xsl:otherwise>
     </xsl:choose>

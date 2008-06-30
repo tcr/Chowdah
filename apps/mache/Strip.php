@@ -75,31 +75,6 @@ class Strip {
 		
 		// import XHTML into document
 		return $document->importNode($xhtml->documentElement, true);
-		
-/*		// parse string
-		preg_match_all('/\[\[[0-9a-f]{6}\]\]|[^\[]+|\[/s', $content, $matches);
-		
-		// create node list
-		$nodes = $document->createElement('content');
-		// iterate it
-		foreach ($matches[0] as $match) {
-			if (preg_match('/^\[\[([0-9a-f]{6})\]\]$/', $match, $components)) {
-				try {
-					// get strip
-					$strip = new Strip($components[1]);
-					
-					// link
-					$nodes->appendChild($link = $document->createElement('a', $strip->title));
-					$link->setAttribute('href', '/strips/' . $components[1]);
-					continue;
-				} catch (Exception $e) { }
-			}
-	
-			// use unescaped text
-			$nodes->appendChild($document->createTextNode($match));
-		}
-		// return node list
-		return $nodes;*/
 	}
 	
 	static public function parseMacheLink($matches) {

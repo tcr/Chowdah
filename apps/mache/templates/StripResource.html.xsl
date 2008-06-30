@@ -26,7 +26,7 @@
                 </input>
               </dd>
           </dl>
-          <p id="actions"><input type="submit" value="Save" />&#160;<input type="reset" value="Reset" />&#160;<a href="{id}">[Cancel]</a></p>
+          <p class="actions"><input type="submit" value="Save" />&#160;<input type="reset" value="Reset" />&#160;<a href="{id}">Cancel</a></p>
         </form>
       </xsl:when>
       <xsl:when test="@delete">
@@ -35,7 +35,7 @@
         <form method="post" action="{id}">
 	  <input type="hidden" name="method" value="DELETE" />
 	  <p>Are you sure you want to delete this strip?</p>
-          <p id="actions"><input type="submit" value="Delete" />&#160;<a href="{id}">[Cancel]</a></p>
+          <p class="actions"><input type="submit" value="Delete" />&#160;<a href="{id}">Cancel</a></p>
 	</form>
       </xsl:when>
       
@@ -43,15 +43,16 @@
         <h2><xsl:value-of select="title" /></h2>
 
         <div id="strip-content"><xsl:copy-of select="php:function('Strip::parseMarkup', string(content), /)/node()" /></div>
-    
-        <h3>Tags</h3>
-        <ul>
-          <xsl:for-each select="tags/tag">
-            <li><a href=".?tags={.}"><xsl:value-of select="." /></a></li>
-          </xsl:for-each>
-        </ul>
         
-        <p id="actions"><a href="{id}?edit">[Edit]</a>&#160;<a href="{id}?delete">[Delete]</a></p>
+        <xsl:if test="tags/tag">
+          <p id="tags"><small><strong>Tagged:</strong>
+            <xsl:for-each select="tags/tag">
+              <xsl:text> </xsl:text><a href=".?tags={.}"><xsl:value-of select="." /></a>
+            </xsl:for-each></small>
+          </p>
+        </xsl:if>
+        
+        <p class="actions"><a href="{id}?edit">Edit</a>&#160;<a href="{id}?delete">Delete</a></p>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

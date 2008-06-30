@@ -12,6 +12,8 @@
       <head>
         <title>Mache</title>
         <link rel="stylesheet" type="text/css" href="/styles/mache.css" media="screen" />
+        <script src="/scripts/jquery-1.2.3.min.js" />
+        <script src="/scripts/mache.js" />
       </head>
 
       <body>

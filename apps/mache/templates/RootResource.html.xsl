@@ -17,7 +17,7 @@
                 <textarea rows="15" cols="50" name="content" id="content"><xsl:value-of select="content" /></textarea>
               </dd>
           </dl>
-          <p id="actions"><input type="submit" value="Save" />&#160;<input type="reset" value="Reset" />&#160;<a href="{id}">[Cancel]</a></p>
+          <p class="actions"><input type="submit" value="Save" />&#160;<input type="reset" value="Reset" />&#160;<a href=".">Cancel</a></p>
         </form>
       </xsl:when>
       <xsl:otherwise>
@@ -25,7 +25,7 @@
 
         <div id="strip-content"><xsl:copy-of select="php:function('Strip::parseMarkup', string(content), /)/node()" /></div>
         
-        <p id="actions"><a href="{id}?edit">[Edit]</a></p>
+        <p class="actions"><a href="{id}?edit">Edit</a></p>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
