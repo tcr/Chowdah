@@ -61,15 +61,22 @@ abstract class Chowdah {
 	// request handler
 	//----------------------------------------------------------------------
 	
-	static public function handle(HTTPRequest $request, HTTPResource $root) {
+	static public function handle(HTTPRequest $request, HTTPResource $root, $rootPath = null) {
+		// get root andrequest path
+		$rootPath = ($rootPath ? @realpath($rootPath) : @realpath($_SERVER['DOCUMENT_ROOT']));
+		$requestPath = @realpath($_SERVER['DOCUMENT_ROOT']) . $request->getURL()->path;
+		// validate requested path
+		if (substr($requestPath, 0, strlen($rootPath)) != $rootPath)
+			throw new Exception('Requested path does not match root path.');
+
 		// get the requested path
-		$path = array_filter(explode('/', $request->getURL()->path), 'strlen');
+		$path = array_filter(explode('/', substr($requestPath, strlen($rootPath))), 'strlen');
 		// descend the tree
 		$resource = $root;
 		foreach ($path as $file)
 			if (!($resource instanceof Collection) || !($resource = $resource->getChild($file)))
 				throw new HTTPStatusException(404);
-		
+
 		// check that a collection wasn't requested as a document
 		if (substr($request->getURL()->path, -1) != '/' && $resource instanceof Collection)
 			throw new HTTPStatusException(301, 'Moved Permanently',
@@ -89,20 +96,8 @@ abstract class Chowdah {
 		return $response;
 	}
 
-	//----------------------------------------------------------------------
-	// applications
-	//----------------------------------------------------------------------
-	
-#[TODO] make sure when loading that the app acutally exists...
-
-	static public function loadApplication($path) {
-		// load Chowdah path (to make relative paths work)
-		chdir(Chowdah::getRootPath());
-		// change working directory to application path
-		chdir($path);
-		// import classes from this directory
-		import('.');
-		return true;
+	static public function handleCurrentRequest(HTTPResource $root, $rootPath = null) {
+		return Chowdah::handle(HTTPRequest::getCurrent(), $root, $rootPath);
 	}
 	
 	//----------------------------------------------------------------------

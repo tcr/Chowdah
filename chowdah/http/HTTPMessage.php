@@ -396,7 +396,8 @@ abstract class HTTPMessage {
 			case 'text/xml':
 			case 'application/xml':
 			case 'application/xhtml+xml':
-				$data->formatOutput = true;
+				if ($data instanceof DOMDocument)
+					$data->formatOutput = true;
 				$this->setContent($data->saveXML());
 				break;
 
@@ -412,6 +413,7 @@ abstract class HTTPMessage {
 	}
 
 	//----------------------------------------------------------------------
+
 	// content as document
 	//----------------------------------------------------------------------
 	
