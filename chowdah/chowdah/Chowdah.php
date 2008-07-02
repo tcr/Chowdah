@@ -15,7 +15,6 @@ class Chowdah {
 		spl_autoload_register('import_autoload');
 
 		// import classes
-		import(Chowdah::getRootPath());
 		import(Chowdah::getRootPath() . '/file');
 		import(Chowdah::getRootPath() . '/http');
 		import(Chowdah::getRootPath() . '/utils');

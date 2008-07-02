@@ -6,15 +6,14 @@
 require 'chowdah/Chowdah.php';
 	
 // import classes
-import('.');
 import('classes');
 import('resources');
 
 // get the document root
-$root = new ChowdahFSCollection($_SERVER['DOCUMENT_ROOT']);
+$root = new ServerCollection($_SERVER['DOCUMENT_ROOT']);
 
 // load Chowdah
 Chowdah::init();
-Chowdah::handleCurrentRequest(new ChowdahFSCollectionResource($root))->send();
+Chowdah::handleCurrentRequest(new ServerCollectionResource($root))->send();
 	
 ?>

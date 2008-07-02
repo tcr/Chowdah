@@ -1,12 +1,14 @@
 <?php
 
 //==============================================================================
-// chowdah filesystem classes
+// server file interface
 //==============================================================================
 
-interface IChowdahFSFile {
-	// get the file's chowdah index entry
-	public function getIndexEntry($create = false);
+interface IServerFile
+{
+	public function getMetadata($key);
+	public function setMetadata($key, $value);
+	public function deleteMetadata($key);
 }
 
 ?>
