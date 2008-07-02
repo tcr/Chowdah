@@ -1,10 +1,10 @@
 <?php
 
 //------------------------------------------------------------------------------
-// chowdah filesystem document
+// server document
 //------------------------------------------------------------------------------
 
-class ChowdahFSDocument extends FSDocument implements ChowdahFSFile {
+class ServerDocument extends FSDocument implements IServerFile {
 	//----------------------------------------------------------------------
 	// metadata extensions
 	//----------------------------------------------------------------------
@@ -50,12 +50,12 @@ class ChowdahFSDocument extends FSDocument implements ChowdahFSFile {
 	//----------------------------------------------------------------------
 
 	protected function getFileFromPath($path) {
-		// try and return an FSFile object of the specified path
+		// try and return a file at the specified path
 		try {
 			if (is_file($path) && basename($path) != '.metadata.ini')
-				return new ChowdahFSDocument($path);
+				return new ServerDocument($path);
 			if (is_dir($path))
-				return new ChowdahFSCollection($path);
+				return new ServerCollection($path);
 		} catch (Exception $e) { }
 		
 		// no match found

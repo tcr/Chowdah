@@ -1,11 +1,11 @@
 <?php
 
 //------------------------------------------------------------------------------
-// chowdah filesystem document resource
+// server document resource
 //------------------------------------------------------------------------------
 
-class ChowdahFSDocumentResource extends DocumentResource {
-	function __construct(ChowdahFSDocument $file) {
+class ServerDocumentResource extends DocumentResource {
+	function __construct(ServerDocument $file) {
 		// save the internal object
 		parent::__construct($file);
 	}

@@ -1,11 +1,11 @@
 <?php
 
 //------------------------------------------------------------------------------
-// chowdah filesystem collection resource
+// server collection resource
 //------------------------------------------------------------------------------
 
-class ChowdahFSCollectionResource extends CollectionResource {
-	function __construct(ChowdahFSCollection $file) {
+class ServerCollectionResource extends CollectionResource {
+	function __construct(ServerCollection $file) {
 		// save the internal object
 		parent::__construct($file, $this->file->getMetadata('allow-directory-list']));
 	}
@@ -34,8 +34,8 @@ class ChowdahFSCollectionResource extends CollectionResource {
 		// else return the child object
 		return !$child ? false :
 		    $child instanceof Collection ?
-		        new ChowdahFSCollectionResource($child) :
-		        new ChowdahFSDocumentResource($child);
+		        new ServerCollectionResource($child) :
+		        new ServerDocumentResource($child);
 	}
 }
 

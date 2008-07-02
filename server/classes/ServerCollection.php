@@ -1,10 +1,10 @@
 <?php
 
 //------------------------------------------------------------------------------
-// chowdah filesystem collection
+// server collection
 //------------------------------------------------------------------------------
 
-class ChowdahFSCollection extends FSCollection implements IChowdahFSFile {
+class ServerCollection extends FSCollection implements IServerFile {
 	//----------------------------------------------------------------------
 	// metadata extensions
 	//----------------------------------------------------------------------
@@ -82,7 +82,7 @@ class ChowdahFSCollection extends FSCollection implements IChowdahFSFile {
 		$newfilename = strlen($filename) ? $filename : $oldFilename;
 
 		// check if the file has metadata
-		if ($file instanceof ChowdahFSFile) {
+		if ($file instanceof ServerFile) {
 			// get the old metadata
 			if ($oldMetadataFile = $file->getParent()->getMetadataFile(false))
 				$metadata = $oldMetadataFile->getSection($oldFilename);
@@ -109,7 +109,7 @@ class ChowdahFSCollection extends FSCollection implements IChowdahFSFile {
 		$newfilename = strlen($filename) ? $filename : $oldFilename;
 
 		// check if the file has metadata
-		if ($file instanceof ChowdahFSFile) {
+		if ($file instanceof ServerFile) {
 			// get the old metadata
 			if ($oldMetadataFile = $file->getParent()->getMetadataFile(false))
 				$metadata = $oldMetadataFile->getSection($oldFilename);
@@ -132,12 +132,12 @@ class ChowdahFSCollection extends FSCollection implements IChowdahFSFile {
 	//----------------------------------------------------------------------
 	
 	protected function getFileFromPath($path) {
-		// try and return an FSFile object of the specified path
+		// try and return a file at the specified path
 		try {
 			if (is_file($path) && basename($path) != '.metadata.ini')
-				return new ChowdahFSDocument($path);
+				return new ServerDocument($path);
 			if (is_dir($path))
-				return new ChowdahFSCollection($path);
+				return new ServerCollection($path);
 		} catch (Exception $e) { }
 		
 		// no match found
