@@ -5,7 +5,7 @@
  * @package File
  */
 
-abstract class FSFile implements WriteableFile {
+abstract class FSFile implements IWriteableFile {
 	// file path
 	protected $path = '';
 	// stream context

@@ -8,7 +8,7 @@
  * @package File
  */
 
-interface Document {
+interface IDocument {
 	// content
 	public function getContent();
 	public function getContentType();

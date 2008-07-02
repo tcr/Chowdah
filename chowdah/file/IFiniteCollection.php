@@ -9,7 +9,7 @@
  * @package File
  */
 
-interface FiniteCollection extends Collection {
+interface IFiniteCollection extends ICollection {
 	/**
 	 * Get an array of children.
 	 *

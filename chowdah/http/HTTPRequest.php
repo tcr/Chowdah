@@ -131,8 +131,8 @@ class HTTPRequest extends HTTPMessage {
 				$request->setHeader($key, $value);
 		} else {
 			// HTTP Authorization header workaround
-			if (!$_SERVER['HTTP_AUTHORIZATION'] && Chowdah::getConfigValue('auth_header_key'))
-				$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER[Chowdah::getConfigValue('auth_header_key')];
+			if (!$_SERVER['HTTP_AUTHORIZATION'] && Chowdah::getConfigSetting('auth_header_key'))
+				$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER[Chowdah::getConfigSetting('auth_header_key')];
 
 			// extract headers from $_SERVER array
 			// (entries formatted as HTTP_* are interpreted as HTTP headers)

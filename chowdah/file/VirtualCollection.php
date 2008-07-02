@@ -5,7 +5,7 @@
  * @package File
  */
 
-class VirtualCollection extends VirtualFile implements WriteableCollection, ArrayAccess, IteratorAggregate, Countable {
+class VirtualCollection extends VirtualFile implements IWriteableCollection, ArrayAccess, IteratorAggregate, Countable {
 	// file properties
 	protected $children = array();
 	

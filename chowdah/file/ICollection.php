@@ -8,7 +8,7 @@
  * @package File
  */
 
-interface Collection {
+interface ICollection {
 	/**
 	 * Get a child object.
 	 *

@@ -5,7 +5,7 @@
  * @package File
  */
 
-class VirtualDocument extends VirtualFile implements WriteableDocument {
+class VirtualDocument extends VirtualFile implements IWriteableDocument {
 	// file properties
 	protected $content = '';
 	protected $contentType = null;

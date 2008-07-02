@@ -8,7 +8,7 @@
 #[TODO] ->clone($source) function
 #[TODO] better utilize SPL functions
 
-interface File {
+interface IFile {
 	// file relations
 	public function getParent();
 

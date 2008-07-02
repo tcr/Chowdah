@@ -5,7 +5,7 @@
  * @package File
  */
 
-interface WriteableFile extends File {
+interface IWriteableFile extends IFile {
 	// properties
 	public function setPermissions($permissions);
 	public function setModificationTime($time);

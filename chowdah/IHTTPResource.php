@@ -2,10 +2,10 @@
 
 /**
  * HTTP Resource Interface
- * @package Chowdah
+ * @package chowdah
  */
 
-interface HTTPResource {
+interface IHTTPResource {
 	// handle an HTTPRequest
 	public function handle(HTTPRequest $request);
 	

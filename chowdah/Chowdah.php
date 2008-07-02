@@ -2,10 +2,10 @@
 
 /**
  * Chowdah Functions
- * @package Chowdah
+ * @package chowdah
  */
 
-abstract class Chowdah {
+class Chowdah {
 	//----------------------------------------------------------------------
 	// initialization functions
 	//----------------------------------------------------------------------
@@ -18,6 +18,7 @@ abstract class Chowdah {
 		import(Chowdah::getRootPath());
 		import(Chowdah::getRootPath() . '/file');
 		import(Chowdah::getRootPath() . '/http');
+		import(Chowdah::getRootPath() . '/utils');
 
 		// exception/error handling
 #[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
@@ -106,7 +107,7 @@ abstract class Chowdah {
 
 	static public function log() {
 		// check if a log file was requested
-		if (!strlen($file = Chowdah::getConfigValue('request_log')))
+		if (!strlen($file = Chowdah::getConfigSetting('request_log')))
 			return false;
 			
 		// log the supplied arguments
@@ -137,45 +138,25 @@ abstract class Chowdah {
 	// configuration location
 	const CONFIG_FILE = 'config.ini';
 	
-	static public function loadConfig() {
-		return parse_ini_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+	static public function getConfigFile() {
+		// load (cached) config file
+		static $configFile = null;
+		if (!$configFile)
+			$configFile = new INIFile(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+		return $configFile;
 	}
 	
-	static public function saveConfig($config) {
-		// write config file
-		$ini = '';
-		foreach ($config as $name => $value)
-			$ini .= $name . ' = "' . addslashes($value) . '"' . "\n";
-		return file_put_contents(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE, $ini);
-	}
-	
-	static public function getConfigValue($name) {
-		$config = Chowdah::loadConfig();
-		return $config[$name];
-	}
-	
-	static public function setConfigValue($name, $value) {
-		// add new entry
-		$config = Chowdah::loadConfig();
-		$config[$name] = $value;
-
-		// write document
-		return Chowdah::saveConfig($config);
-	}
-	
-	static public function deleteConfigValue($name) {
-		// delete entry
-		$config = Chowdah::loadConfig();
-		unset($config[$name]);
-			
-		// write document
-		return Chowdah::saveConfig($config);
+	static public function getConfigSetting($name) {
+		// shorthand configuration checking
+		return Chowdah::getConfigFile()->getValue($name);
 	}
 }
 
 //------------------------------------------------------------------------------
 // import files
 //------------------------------------------------------------------------------
+
+#[TODO] maybe more package-kile emulation
 
 $importFolders = array();
 

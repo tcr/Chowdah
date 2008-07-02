@@ -5,7 +5,7 @@
  * @package File
  */
 
-abstract class VirtualFile implements WriteableFile {
+abstract class VirtualFile implements IWriteableFile {
 	// file properties
 	protected $path = '';
 	protected $permissions = 0644;	

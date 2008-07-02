@@ -1,18 +1,18 @@
 <?php 
 
 /**
- * Filesystem Document Resource
+ * Document Resource
  * @package File
  */
 
-class FSDocumentResource extends HTTPResourceBase {
+class DocumentResource extends HTTPResourceBase {
 	//----------------------------------------------------------------------
 	// construction
 	//----------------------------------------------------------------------
 	
 	protected $file;
 	
-	function __construct(FSDocument $file) {
+	function __construct(Document $file) {
 		// save the internal object
 		$this->file = $file;
 	}

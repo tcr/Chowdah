@@ -5,7 +5,7 @@
  * @package File
  */
 
-class FSCollectionResource extends HTTPResourceBase implements Collection {
+class CollectionResource extends HTTPResourceBase implements ICollection {
 	//----------------------------------------------------------------------
 	// construction
 	//----------------------------------------------------------------------
@@ -13,7 +13,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	protected $file;
 	public $showDirectory = true;
 	
-	function __construct(FSCollection $file, $showDirectory = true) {
+	function __construct(Collection $file, $showDirectory = true) {
 		// save the internal object and options
 		$this->file = $file;
 		$this->showDirectory = $showDirectory;
@@ -27,7 +27,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	
 	public function GET(HTTPRequest $request) {
 		// if index is disabled, throw a 403 error
-		if (!$this->showDirectory)
+		if (!$this->showDirectory || !($this->file instanceof FiniteCollection))
 			throw new HTTPStatusException(HTTPResponse::STATUS_FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
 	
 		// create the response

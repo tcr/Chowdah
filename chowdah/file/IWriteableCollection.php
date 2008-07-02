@@ -5,7 +5,7 @@
  * @package File
  */
 
-interface WriteableCollection extends Collection {	
+interface IWriteableCollection extends ICollection {	
 	// file modification	
 	public function createChildDocument($filename, $overwrite = false, $permissions = 0644);
 	public function createChildCollection($filename, $overwrite = false, $permissions = 0755);

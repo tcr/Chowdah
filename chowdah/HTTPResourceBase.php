@@ -2,10 +2,10 @@
 
 /**
  * HTTP Resource Base Class
- * @package Chowdah
+ * @package chowdah
  */
 
-abstract class HTTPResourceBase implements HTTPResource {
+abstract class HTTPResourceBase implements IHTTPResource {
 	// allowed HTTP methods
 	protected $methods = array('OPTIONS');
 

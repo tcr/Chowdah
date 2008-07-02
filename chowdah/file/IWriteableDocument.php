@@ -5,7 +5,7 @@
  * @package File
  */
 
-interface WriteableDocument extends Document {
+interface IWriteableDocument extends IDocument {
 	public function setContent($data);
 	public function setContentType(MIMEType $mimetype);
 }
