@@ -16,11 +16,6 @@ interface Collection {
 	 * @param string The file name of the child to be returned.
 	 */
 	public function getChild($filename);
-	
-	// getChildren flags
-#	public function getChildren($flags = null);
-	const ONLY_DOCUMENTS = 1;
-	const ONLY_COLLECTIONS = 2;
 }
 
 ?>

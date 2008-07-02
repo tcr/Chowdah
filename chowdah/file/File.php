@@ -20,6 +20,7 @@ interface File {
 	public function getPermissions();
 	public function getModificationTime();
 	public function getAccessTime();
+	public function getSize();
 }
 
 ?>

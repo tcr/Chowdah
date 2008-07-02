@@ -11,12 +11,12 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	//----------------------------------------------------------------------
 	
 	protected $file;
-	protected $index = true;
+	public $showDirectory = true;
 	
-	function __construct(FSCollection $file, $index = true) {
+	function __construct(FSCollection $file, $showDirectory = true) {
 		// save the internal object and options
 		$this->file = $file;
-		$this->index = (bool) $index;
+		$this->showDirectory = $showDirectory;
 	}
 	
 	//----------------------------------------------------------------------
@@ -27,7 +27,7 @@ class FSCollectionResource extends HTTPResourceBase implements Collection {
 	
 	public function GET(HTTPRequest $request) {
 		// if index is disabled, throw a 403 error
-		if (!$this->index)
+		if (!$this->showDirectory)
 			throw new HTTPStatusException(HTTPResponse::STATUS_FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
 	
 		// create the response

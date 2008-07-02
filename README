@@ -16,12 +16,11 @@ request-handling script akin to the following:
 	// load Chowdah class
 	require 'chowdah/Chowdah.php';
 	
-	// do other stuff here...
+	// import classes, init, &c...
 	
 	// load Chowdah
 	Chowdah::init();
-	Chowdah::loadApplication(getcwd());
-	Chowdah::handle(HTTPRequest::getCurrent(), new RootResource())->send();
+	Chowdah::handleCurrentRequest(new RootResource())->send();
 	
 	?>
 
