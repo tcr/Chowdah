@@ -2,7 +2,7 @@
 
 /**
  * Virtual Collection Class
- * @package File
+ * @package chowdah.file
  */
 
 class VirtualCollection extends VirtualFile implements IWriteableCollection, ArrayAccess, IteratorAggregate, Countable {

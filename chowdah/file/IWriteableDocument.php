@@ -2,7 +2,7 @@
 
 /**
  * Writeable Document Interface
- * @package File
+ * @package chowdah.file
  */
 
 interface IWriteableDocument extends IDocument {

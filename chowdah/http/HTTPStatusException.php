@@ -2,7 +2,7 @@
 
 /**
  * HTTP Status Exception
- * @package HTTP
+ * @package chowdah.http
  */
 
 #[TODO] allow customization

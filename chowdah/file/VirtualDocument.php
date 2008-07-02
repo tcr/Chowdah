@@ -2,7 +2,7 @@
 
 /**
  * Virtual Document Class
- * @package File
+ * @package chowdah.file
  */
 
 class VirtualDocument extends VirtualFile implements IWriteableDocument {

@@ -2,7 +2,7 @@
 
 /**
  * HTTP Type Base Class
- * @package HTTP
+ * @package chowdah.http
  */
 
 #[TODO] better protect properties and parameters?

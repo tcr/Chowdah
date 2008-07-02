@@ -2,7 +2,7 @@
 
 /**
  * URL Class
- * @package HTTP
+ * @package chowdah.http
  */
 
 class URL {

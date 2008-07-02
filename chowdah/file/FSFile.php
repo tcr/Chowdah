@@ -2,7 +2,7 @@
 
 /**
  * Filesystem File Abstract Class
- * @package File
+ * @package chowdah.file
  */
 
 abstract class FSFile implements IWriteableFile {

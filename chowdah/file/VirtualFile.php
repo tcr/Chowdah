@@ -2,7 +2,7 @@
 
 /**
  * Virtual File Abstract Class
- * @package File
+ * @package chowdah.file
  */
 
 abstract class VirtualFile implements IWriteableFile {
@@ -29,7 +29,7 @@ abstract class VirtualFile implements IWriteableFile {
 	}
 	
 	// permissions
-
+	
 	public function getPermissions() {
 		return $this->permissions;
 	}

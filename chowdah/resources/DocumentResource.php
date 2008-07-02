@@ -2,7 +2,7 @@
 
 /**
  * Document Resource
- * @package File
+ * @package chowdah.resources
  */
 
 class DocumentResource extends HTTPResourceBase {

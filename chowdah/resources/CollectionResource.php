@@ -1,8 +1,8 @@
 <?php 
 
 /**
- * Filesystem Collection Resource
- * @package File
+ * Collection Resource
+ * @package chowdah.resources
  */
 
 class CollectionResource extends HTTPResourceBase implements ICollection {

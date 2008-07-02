@@ -2,7 +2,7 @@
 
 /**
  * HTTP Resource Interface
- * @package chowdah
+ * @package chowdah.resources
  */
 
 interface IHTTPResource {

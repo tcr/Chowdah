@@ -2,7 +2,7 @@
 
 /**
  * HTTP Request
- * @package HTTP
+ * @package chowdah.http
  */
 
 class HTTPRequest extends HTTPMessage {

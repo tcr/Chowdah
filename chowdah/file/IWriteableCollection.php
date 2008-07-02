@@ -2,7 +2,7 @@
 
 /**
  * Writeable Collection Interface
- * @package File
+ * @package chowdah.file
  */
 
 interface IWriteableCollection extends ICollection {	

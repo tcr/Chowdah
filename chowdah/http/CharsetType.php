@@ -4,7 +4,7 @@
  * Charset Type
  *
  * see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.2
- * @package HTTP
+ * @package chowdah.http
  */
  
 class CharsetType extends HTTPType {

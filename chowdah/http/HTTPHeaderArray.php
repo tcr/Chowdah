@@ -2,7 +2,7 @@
 
 /**
  * HTTP Headers Array
- * @package HTTP
+ * @package chowdah.http
  */
 
 class HTTPHeaderArray extends ArrayObject {

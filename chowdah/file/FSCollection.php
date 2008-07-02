@@ -2,7 +2,7 @@
 
 /**
  * Filesystem Collection Class
- * @package File
+ * @package chowdah.file
  */
 
 class FSCollection extends FSFile implements IWriteableCollection, IFiniteCollection, ArrayAccess, IteratorAggregate, Countable {

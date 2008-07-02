@@ -2,7 +2,7 @@
 
 /**
  * File Interface
- * @package File
+ * @package chowdah.file
  */
  
 #[TODO] ->clone($source) function

@@ -6,7 +6,7 @@
  * A Collection is an object which has a finite number children, which can be
  * retrieved individually via the <kbd>getChild</kbd> method or in an array via
  * the <kbd>getChildren</kbd> method and its flags.
- * @package File
+ * @package chowdah.file
  */
 
 interface IFiniteCollection extends ICollection {

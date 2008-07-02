@@ -2,7 +2,7 @@
 
 /**
  * HTTP Message Base Class
- * @package HTTP
+ * @package chowdah.http
  */
 
 abstract class HTTPMessage {

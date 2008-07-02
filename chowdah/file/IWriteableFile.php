@@ -2,7 +2,7 @@
 
 /**
  * Writeable File Interface
- * @package File
+ * @package chowdah.file
  */
 
 interface IWriteableFile extends IFile {

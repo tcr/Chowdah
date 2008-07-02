@@ -2,7 +2,7 @@
 
 /**
  * Filesystem Document Class
- * @package File
+ * @package chowdah.file
  */
 
 class FSDocument extends FSFile implements IWriteableDocument {

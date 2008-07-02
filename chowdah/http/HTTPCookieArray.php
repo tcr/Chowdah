@@ -2,7 +2,7 @@
 
 /**
  * HTTP Cookies Array
- * @package HTTP
+ * @package chowdah.http
  */
 
 class HTTPCookieArray implements IteratorAggregate, ArrayAccess, Countable {

@@ -5,7 +5,7 @@
  *
  * A Collection is an object which has children, which can be retrieved via the
  * <kbd>getChild</kbd> method.
- * @package File
+ * @package chowdah.file
  */
 
 interface ICollection {

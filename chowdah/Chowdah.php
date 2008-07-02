@@ -19,6 +19,7 @@ class Chowdah {
 		import(Chowdah::getRootPath() . '/file');
 		import(Chowdah::getRootPath() . '/http');
 		import(Chowdah::getRootPath() . '/utils');
+		import(Chowdah::getRootPath() . '/resources');
 
 		// exception/error handling
 #[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());

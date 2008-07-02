@@ -2,7 +2,7 @@
 
 /**
  * HTTP Resource Base Class
- * @package chowdah
+ * @package chowdah.resources
  */
 
 abstract class HTTPResourceBase implements IHTTPResource {
