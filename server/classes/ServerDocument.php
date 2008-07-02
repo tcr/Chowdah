@@ -71,7 +71,7 @@ class ServerDocument extends FSDocument implements IServerFile {
 		    case 'metadata':
 			// return an array of metadata
 			if ($file = $this->getParent()->getMetadataFile(false))
-				return (array) $file->data[$this->getFilename()];
+				return (array) $file->getSection($this->getFilename());
 			return array();
 		}
 	}

@@ -28,22 +28,22 @@ Usage:
 
 The server will now be able to accept HTTP requests. For additional control over
 your files, you can create a .metadata.ini file in the parent directory of each
-file you want to extend. For example, if in an images/ folder there is a file
-flowers.jpg, which you want to specify has a mime-type of image/jpeg, you can
-create images/.metadata.ini with the following content:
+document you want to extend. For example, if in an images/ folder there is a
+file flowers.jpg, which you want to specify has a mime-type of image/jpeg, you
+can create images/.metadata.ini with the following content:
 
      [flowers.jpg]
      content-type = image/jpeg
 
-You can also set controls on how folders are displayed. If you would like to
-specify whether accessing a folder should show a directory list, you can use the
-allow-directory-list option in the .metadata.ini file of its parent:
+You can also set controls on how folders are displayed in its .metadata.ini. If
+you would like to specify whether accessing a folder should show a directory
+list, you can set the allow-directory-list option in the beginning of the file
+(before any file settings):
 
-     [images]
      allow-directory-list = true
 
-If you would instead like to show a document when the folder is accessed (the
-equivalent of index.html, index.php, etc.), you can use the index setting:
+If you would instead like to show a document when the folder is accessed (such
+as index.html), you can use the index setting:
 
      index = flowers.jpg
      

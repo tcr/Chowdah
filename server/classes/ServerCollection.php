@@ -28,21 +28,21 @@ class ServerCollection extends FSCollection implements IServerFile {
 
 	public function getMetadata($key)
 	{
-		if ($file = $this->getParent()->getMetadataFile(false))
-			return $file->getValue($key, $this->getFilename());
+		if ($file = $this->getMetadataFile(false))
+			return $file->getValue($key);
 		return false;
 	}
 	
 	public function setMetadata($key, $value)
 	{
-		$file = $this->getParent()->getMetadataFile(true); 
-		return $file->setValue($key, $value, $this->getFilename());
+		$file = $this->getMetadataFile(true); 
+		return $file->setValue($key, $value);
 	}
 
 	public function deleteMetadata($key)
 	{
-		if ($file = $this->getParent()->getMetadataFile(false))
-			return $file->deleteValue($key, $this->getFilename());
+		if ($file = $this->getMetadataFile(false))
+			return $file->deleteValue($key);
 		return false;
 	}
 
@@ -152,8 +152,8 @@ class ServerCollection extends FSCollection implements IServerFile {
 		switch ($key) {
 		    case 'metadata':
 			// return an array of metadata
-			if ($file = $this->getParent()->getMetadataFile(false))
-				return (array) $file->data[$this->getFilename()];
+			if ($file = $this->getMetadataFile(false))
+				return (array) $file->getSection();
 			return array();
 		}
 	}
