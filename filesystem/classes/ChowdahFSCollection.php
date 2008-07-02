@@ -4,59 +4,50 @@
 // chowdah filesystem collection
 //------------------------------------------------------------------------------
 
-class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
+class ChowdahFSCollection extends FSCollection implements IChowdahFSFile {
 	//----------------------------------------------------------------------
-	// Chowdah metadata extensions
+	// metadata extensions
 	//----------------------------------------------------------------------
 
-	public function getIndex($create = false) {
-		// get the chowdah index for this collection
-		$path = $this->getPath() . '/.chowdah-index';
-		// if an index exists, return it
-		if ($index = ChowdahIndex::load($path))
-			return $index;
-		
-		// attempt to create the index
-		if (!$create)
+	public function getMetadataFile($create = false) {
+		// cache metadata files
+		static $file = null;
+		if ($file)
+			return $file;
+
+		// get the metadata for this collection
+		$path = $this->getPath() . '/.metadata.ini';
+		// check if we need to create it
+		if (!is_file($path) && !$create)
 			return false;
-		file_put_contents($path, '<?xml version="1.0" ?><chowdah-index />');
-		return ChowdahIndex::load($path);
+		else if (!is_file($path)
+			file_put_contents($path, '');
+		
+		return ($file = new INIFile($path));
 	}
 
-	public function getIndexEntry($create = false) {
-		// get the chowdah index entry for this collection
-		if ($index = $this->getParent()->getIndex($create)) {
-			// if an entry exists, return it
-			if ($entry = $index->getFile($this->getFilename()))
-				return $entry;
-			// else, attempt to create the entry
-			if ($create)
-				return $index->addFile($this->getFilename());
-		}
-		return false;
-	}
-
-	public function getMetadata($key) {
-		// return this file's metadata
-		if ($entry = $this->getIndexEntry(false))
-			return $entry->getMetadata($key);
+	public function getMetadata($key)
+	{
+		if ($file = $this->getParent()->getMetadataFile(false))
+			return $file->getValue($key, $this->getFilename());
 		return false;
 	}
 	
-	public function setMetadata($key, $value) {
-		// set the metadata entry
-		return $this->getIndexEntry(true)->setMetadata($key, $value);
+	public function setMetadata($key, $value)
+	{
+		$file = $this->getParent()->getMetadataFile(true); 
+		return $file->setValue($key, $value, $this->getFilename());
 	}
 
-	public function deleteMetadata($key) {
-		// delete the metadata entry
-		if ($this->getMetadata($key) !== false)
-			return $this->getIndexEntry(true)->deleteMetadata($key);
+	public function deleteMetadata($key)
+	{
+		if ($file = $this->getParent()->getMetadataFile(false))
+			return $file->deleteValue($key, $this->getFilename());
 		return false;
 	}
 
 	//----------------------------------------------------------------------
-	// WriteableCollection extensions
+	// IWriteableCollection extensions
 	//----------------------------------------------------------------------
 	
 	public function createChildDocument($name, $overwrite = false, $permissions = 0644) {
@@ -79,9 +70,9 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 		// remove the selected child
 		if (!parent::deleteChild($filename))
 			return false;
-		// delete chowdah index entry
-		if ($index = $this->getIndex(false))
-			$index->deleteFile($filename);
+		// delete metadata entry
+		if ($file = $this->getMetadataFile(false))
+			$index->deleteSection($filename);
 		return true;
 	}
 
@@ -90,29 +81,25 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 		$oldFilename = $file->getFilename();
 		$newfilename = strlen($filename) ? $filename : $oldFilename;
 
-		// check if the file has chowdah metadata
+		// check if the file has metadata
 		if ($file instanceof ChowdahFSFile) {
-			// get the old index file and entry
-			if ($oldIndex = $file->getParent()->getIndex(false))
-				$entry = $oldIndex->getFile($oldFilename);
-			// get the new index file
-			$newIndex = $this->getIndex((bool) $entry);
+			// get the old metadata
+			if ($oldMetadataFile = $file->getParent()->getMetadataFile(false))
+				$metadata = $oldMetadataFile->getSection($oldFilename);
+			// get the new metadata file
+			$newMetadataFile = $this->getMetadataFile((bool) $metadata);
 		}
 	
 		// move the file to this directory
 		if (!parent::move($file, $overwrite, $newfilename))
 			return false;
 
-		// move file metadata, if it exists
-		if ($entry) {
-			// import the new entry
-			$newIndex->importFile($entry, $overwrite, $newFilename);
-			// delete the old entry
-			$oldIndex->deleteFile($oldFilename);
-		} else if ($newIndex) {
-			// delete lingering metadata, if it exists
-			$newIndex->deleteFile($newFilename);
-		}
+		// import file metadata, if it exists
+		if ($metadata)
+			$newMetadataFile->setSection($metadata, $newfilename);
+		// delete any lingering metadata
+		if ($oldMetadataFile)
+			$oldMetadataFile->deleteSection($oldFilename);
 		return true;
 	}
 
@@ -121,29 +108,22 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 		$oldFilename = $file->getFilename();
 		$newfilename = strlen($filename) ? $filename : $oldFilename;
 
-		// check if the file has chowdah metadata
+		// check if the file has metadata
 		if ($file instanceof ChowdahFSFile) {
-			// get the old chowdah index
-			if ($oldIndex = $file->getParent()->getIndex(false))
-				$entry = $oldIndex->getFile($oldFilename);
-			// get the new chowdah index
-			$newIndex = $this->getIndex((bool) $entry);
+			// get the old metadata
+			if ($oldMetadataFile = $file->getParent()->getMetadataFile(false))
+				$metadata = $oldMetadataFile->getSection($oldFilename);
+			// get the new metadata file
+			$newMetadataFile = $this->getMetadataFile((bool) $metadata);
 		}
-
-		// copy the file to this directory
-		if (!parent::copy($file, $overwrite, $newFilename))
+	
+		// move the file to this directory
+		if (!parent::copy($file, $overwrite, $newfilename))
 			return false;
 
-		// copy file metadata, if it exists
-		if ($entry) {
-			// import the new entry
-			$newIndex->importFile($entry, $overwrite, $newFilename);
-			// delete the old entry
-			$oldIndex->deleteFile($oldFilename);
-		} else if ($newIndex) {
-			// delete lingering metadata, if it exists
-			$newIndex->deleteFile($newFilename);
-		}
+		// import file metadata, if it exists
+		if ($metadata)
+			$newMetadataFile->setSection($metadata, $newfilename);
 		return true;
 	}
 
@@ -154,7 +134,7 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 	protected function getFileFromPath($path) {
 		// try and return an FSFile object of the specified path
 		try {
-			if (is_file($path) && basename($path) != '.chowdah-index')
+			if (is_file($path) && basename($path) != '.metadata.ini')
 				return new ChowdahFSDocument($path);
 			if (is_dir($path))
 				return new ChowdahFSCollection($path);
@@ -172,8 +152,8 @@ class ChowdahFSCollection extends FSCollection implements ChowdahFSFile {
 		switch ($key) {
 		    case 'metadata':
 			// return an array of metadata
-			if ($entry = $this->getIndexEntry(false))
-				return $entry->metadata;
+			if ($file = $this->getParent()->getMetadataFile(false))
+				return (array) $file->data[$this->getFilename()];
 			return array();
 		}
 	}

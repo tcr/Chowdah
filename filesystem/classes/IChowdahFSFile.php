@@ -4,7 +4,7 @@
 // chowdah filesystem classes
 //==============================================================================
 
-interface ChowdahFSFile {
+interface IChowdahFSFile {
 	// get the file's chowdah index entry
 	public function getIndexEntry($create = false);
 }

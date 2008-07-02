@@ -1,6 +1,5 @@
 <?php
 
-#[TODO] extend from independent FSDocumentResource class?
 #[TODO] creating resource from DOCUMENT_ROOT could throw exception, so...
 
 // load Chowdah class

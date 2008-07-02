@@ -4,7 +4,7 @@
 // chowdah filesystem collection resource
 //------------------------------------------------------------------------------
 
-class ChowdahFSCollectionResource extends FSCollectionResource {
+class ChowdahFSCollectionResource extends CollectionResource {
 	function __construct(ChowdahFSCollection $file) {
 		// save the internal object
 		parent::__construct($file, $this->file->getMetadata('allow-directory-list']));
