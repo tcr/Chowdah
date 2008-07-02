@@ -372,7 +372,7 @@ abstract class HTTPMessage {
 				// iterate the form data
 				foreach ((array) $data as $name => $entry) {
 					// check the type of entry
-					if ($entry instanceof Document) {
+					if ($entry instanceof IDocument) {
 						// add the file data
 						$this->appendContent('--' . $boundary . "\r\n" .
 						    'Content-Disposition: form-data; name="' . $name . '";' .
@@ -428,7 +428,7 @@ abstract class HTTPMessage {
 		return $document;
 	}
 
-	public function setContentAsDocument(Document $document) {
+	public function setContentAsDocument(IDocument $document) {
 		// load the document content as a message entity
 		$this->setContentType($document->getContentType());
 		$this->setContent($document->getContent());

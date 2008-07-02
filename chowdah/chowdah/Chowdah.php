@@ -11,15 +11,6 @@ class Chowdah {
 	//----------------------------------------------------------------------
 
 	static public function init() {
-		// setup import loader
-		spl_autoload_register('import_autoload');
-
-		// import classes
-		import(Chowdah::getRootPath() . '/file');
-		import(Chowdah::getRootPath() . '/http');
-		import(Chowdah::getRootPath() . '/utils');
-		import(Chowdah::getRootPath() . '/resources');
-
 		// exception/error handling
 #[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
 		set_exception_handler(array('Chowdah', 'exceptionHandler'));
@@ -62,7 +53,7 @@ class Chowdah {
 	// request handler
 	//----------------------------------------------------------------------
 	
-	static public function handle(HTTPRequest $request, HTTPResource $root, $rootPath = null) {
+	static public function handle(HTTPRequest $request, IHTTPResource $root, $rootPath = null) {
 		// get root andrequest path
 		$rootPath = ($rootPath ? @realpath($rootPath) : @realpath($_SERVER['DOCUMENT_ROOT']));
 		$requestPath = @realpath($_SERVER['DOCUMENT_ROOT']) . $request->getURL()->path;
@@ -71,19 +62,19 @@ class Chowdah {
 			throw new Exception('Requested path does not match root path.');
 
 		// get the requested path
-		$path = array_filter(explode('/', substr($requestPath, strlen($rootPath))), 'strlen');
+		$path = array_map('urldecode', array_filter(explode('/', substr($requestPath, strlen($rootPath))), 'strlen'));
 		// descend the tree
 		$resource = $root;
 		foreach ($path as $file)
-			if (!($resource instanceof Collection) || !($resource = $resource->getChild($file)))
+			if (!($resource instanceof ICollection) || !($resource = $resource->getChild($file)))
 				throw new HTTPStatusException(404);
 
 		// check that a collection wasn't requested as a document
-		if (substr($request->getURL()->path, -1) != '/' && $resource instanceof Collection)
+		if (substr($request->getURL()->path, -1) != '/' && $resource instanceof ICollection)
 			throw new HTTPStatusException(301, 'Moved Permanently',
 			    null, array('Location' => $request->getURL() . '/'));
 		// or a document requested as a collection
-		if (substr($request->getURL()->path, -1) == '/' && !($resource instanceof Collection))
+		if (substr($request->getURL()->path, -1) == '/' && !($resource instanceof ICollection))
 			throw new HTTPStatusException(404);
 		
 		// call the resource handler with the current request
@@ -97,7 +88,7 @@ class Chowdah {
 		return $response;
 	}
 
-	static public function handleCurrentRequest(HTTPResource $root, $rootPath = null) {
+	static public function handleCurrentRequest(IHTTPResource $root, $rootPath = null) {
 		return Chowdah::handle(HTTPRequest::getCurrent(), $root, $rootPath);
 	}
 	
@@ -153,25 +144,16 @@ class Chowdah {
 }
 
 //------------------------------------------------------------------------------
-// import files
+// class importing
 //------------------------------------------------------------------------------
 
-#[TODO] maybe more package-kile emulation
+// load importing functions
+require_once 'import.php';
 
-$importFolders = array();
-
-function import_autoload($class) {
-	global $importFolders;
-	foreach ($importFolders as $folder) {
-		if (is_file($folder . '/' . $class . '.php'))
-			include_once $folder . '/' . $class . '.php';
-	}
-}
-
-function import($folder) {
-	// add folder to __autoload list
-	global $importFolders;
-	$importFolders[] = @realpath($folder);
-}
+// import classes
+import(Chowdah::getRootPath() . '/file');
+import(Chowdah::getRootPath() . '/http');
+import(Chowdah::getRootPath() . '/utils');
+import(Chowdah::getRootPath() . '/resources');
 
 ?>

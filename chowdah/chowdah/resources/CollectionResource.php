@@ -13,7 +13,7 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 	protected $file;
 	public $showDirectory = true;
 	
-	function __construct(Collection $file, $showDirectory = true) {
+	function __construct(ICollection $file, $showDirectory = true) {
 		// save the internal object and options
 		$this->file = $file;
 		$this->showDirectory = $showDirectory;
@@ -27,7 +27,7 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 	
 	public function GET(HTTPRequest $request) {
 		// if index is disabled, throw a 403 error
-		if (!$this->showDirectory || !($this->file instanceof FiniteCollection))
+		if (!$this->showDirectory || !($this->file instanceof IFiniteCollection))
 			throw new HTTPStatusException(HTTPResponse::STATUS_FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
 	
 		// create the response
@@ -50,21 +50,23 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
    <tbody>
     <tr><td colspan="3"><a href="../">Parent Directory</a></td></tr>');
 		// add collections
-		foreach ($this->file->getChildren(FiniteCollection::CHILD_COLLECTIONS) as $child => $file)
-			$response->appendContent(
-			    '   <tr><td>[DIR] <a href="' . $child . '/">' . $child . '</a></td>' .
-			    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
-			    '<td>-</td>' .
-			    '<td>-</td>' .
-			    "</tr>\n");
+		foreach ($this->file->getChildren(IFiniteCollection::CHILD_COLLECTIONS) as $child => $file)
+			if ($child[0] != '.')
+				$response->appendContent(
+				    '   <tr><td>[DIR] <a href="' . $child . '/">' . $child . '</a></td>' .
+				    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
+				    '<td>-</td>' .
+				    '<td>-</td>' .
+				    "</tr>\n");
 		// add documents
-		foreach ($this->file->getChildren(FiniteCollection::CHILD_DOCUMENTS) as $child => $file)
-			$response->appendContent(
-			    '   <tr><td>[FILE] <a href="' . $child . '">' . $child . '</a></td>' .
-			    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
-			    '<td>' . $file->getContentType()->serialize(true) . '</td>' .
-			    '<td>' . (ceil($file->getSize()  / 100) / 10) . ' KB </td>' .
-			    "</tr>\n");
+		foreach ($this->file->getChildren(IFiniteCollection::CHILD_DOCUMENTS) as $child => $file)
+			if ($child[0] != '.')
+				$response->appendContent(
+				    '   <tr><td>[FILE] <a href="' . $child . '">' . $child . '</a></td>' .
+				    '<td>' . date('F j, Y', $file->getModificationTime()) .'</td>' .
+				    '<td>' . $file->getContentType()->serialize(true) . '</td>' .
+				    '<td>' . (ceil($file->getSize()  / 100) / 10) . ' KB </td>' .
+				    "</tr>\n");
 		// add footer
 		$response->appendContent(
 '   </tbody>
@@ -88,8 +90,8 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 		
 		// return the child object
 		return $child instanceof Collection ?
-		    new FSCollectionResource($child, $this->index) :
-		    new FSDocumentResource($child);
+		    new CollectionResource($child, $this->index) :
+		    new DocumentResource($child);
 	}
 }
 

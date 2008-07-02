@@ -71,6 +71,12 @@ abstract class FSFile implements IWriteableFile {
 		return touch($this->path, $this->getModificationTime(), $time);
 	}
 	
+	// size
+	
+	public function getSize() {
+		return filesize($this->path);
+	}
+	
 	// file paths
 	
 	public function getRelativePath(File $target) {

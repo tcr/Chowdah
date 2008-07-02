@@ -20,7 +20,7 @@ class ServerCollection extends FSCollection implements IServerFile {
 		// check if we need to create it
 		if (!is_file($path) && !$create)
 			return false;
-		else if (!is_file($path)
+		else if (!is_file($path))
 			file_put_contents($path, '');
 		
 		return ($file = new INIFile($path));

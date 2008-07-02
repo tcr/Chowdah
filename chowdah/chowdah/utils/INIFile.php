@@ -36,8 +36,10 @@ class INIFile
 			else if (preg_match('/^\s*([^;\s].*?)\s*=\s*([^\s].*?)$/', $line, $matches))
 			{
 				// parse value
-				preg_match('/^"(?:\\.|[^"])*"|^\'(?:[^\']|\\.)*\'|^[^;]+?\s*(?=;|$)/', $matches[2], $value);
-				$value = stripslashes(preg_replace('/^(["\'])(.*?)\1?$/', '\2', $value[0]));
+				if (preg_match('/^"(?:\\.|[^"])*"|^\'(?:[^\']|\\.)*\'/', $matches[2], $value))
+					$value = str_replace('\\' . $value[0][0], $value[0][0], substr($value[0], 1, -1));
+				else 
+					$value = preg_replace('/^["\']|\s*;.*$/', '', $matches[2]);
 				// parse data types
 				if (is_numeric($value))
 					$value = (float) $value;
@@ -120,7 +122,7 @@ class INIFile
 		
 		// climb section heirarchy
 		$section =& $this->data[$section];
-		foreach (explode('.', $name) as $levels)
+		foreach ($levels as $level)
 		{
 			if (!is_array($section[$level]) && !$create)
 				return false;
@@ -145,7 +147,7 @@ class INIFile
 		// return value (and parse constants)
 		$section = $this->parseVariableName($name, $section, false);
 		return !$section ? null :
-		    !$parseConstants ? $section[$name] :
+		    !$parseConstants || !is_string($section[$name]) ? $section[$name] :
 		    preg_replace('/\{([^}]+)\}/e', "constant('\\1')", $section[$name]);
 	}
 	

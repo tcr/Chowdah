@@ -1,8 +1,6 @@
 <?php
 
-#[TODO] creating resource from DOCUMENT_ROOT could throw exception, so...
-
-// load Chowdah class
+// initialize Chowdah
 require 'chowdah/Chowdah.php';
 	
 // import classes

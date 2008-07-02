@@ -12,7 +12,7 @@ class DocumentResource extends HTTPResourceBase {
 	
 	protected $file;
 	
-	function __construct(Document $file) {
+	function __construct(IDocument $file) {
 		// save the internal object
 		$this->file = $file;
 	}

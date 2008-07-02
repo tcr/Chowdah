@@ -28,8 +28,8 @@ class FSCollection extends FSFile implements IWriteableCollection, IFiniteCollec
 	
 	public function getChildren($flag = null) {
 		// apply class checking
-		$class = $flag == IFiniteCollection::CHILD_DOCUMENTS ? 'Document' :
-		    ($flag == IFiniteCollection::CHILD_COLLECTIONS ? 'Collection' : 'File');
+		$class = $flag == IFiniteCollection::CHILD_DOCUMENTS ? 'IDocument' :
+		    ($flag == IFiniteCollection::CHILD_COLLECTIONS ? 'ICollection' : 'IFile');
 		// create an array of children
 		$children = array();
 		foreach (new DirectoryIterator($this->getPath()) as $file)

@@ -49,12 +49,6 @@ class FSDocument extends FSFile implements IWriteableDocument {
 		// can't set the content type
 		return false;
 	}
-
-	// file size
-
-	public function getSize() {
-		return filesize($this->path);
-	}
 }
 
 ?>

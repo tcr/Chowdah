@@ -35,14 +35,14 @@ class ServerDocument extends FSDocument implements IServerFile {
 	
 	public function getContentType() {
 		// return this file's content type
-		if ($mimetype = MIMEType::parse($this->getMetadata('content-type')))
+		if ($mimetype = MIMEType::parse($this->getMetadata('content_type')))
 			return $mimetype;
 		return parent::getContentType();
 	}
 
 	public function setContentType(MIMEType $mimetype) {
 		// set this file's content type
-		return $this->setMetadata('content-type', $mimetype->serialize(true));
+		return $this->setMetadata('content_type', $mimetype->serialize(true));
 	}
 
 	//----------------------------------------------------------------------
