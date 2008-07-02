@@ -1,0 +1,54 @@
+Server Application for Chowdah
+Released under the MIT/X license
+Copyright (c) 2008, Tim Cameron Ryan
+
+--------------------------------------------------------------------------------
+
+The Server application is a simple demonstration of how to emulate a normal
+file server using Chowdah. It overlays the filesystem, and creates document
+and collection objects of existing files. In addition, it allows finer control
+of file metadata through the use of .metadata.ini files.
+
+Instructions:
+
+ 1) Unpack the .server directory into the root of your application.
+ 2) Rewrite all requests to the root folder to the .server/request.php file. On
+    Apache servers, this can be done by creating an .htaccess file in the root
+    folder and using mod_rewrite:
+    
+     # rewrite to request handler
+     RewriteEngine On
+     RewriteRule ^.* .server/request.php
+ 
+ 3) (Optional) Configure chowdah using the .server/chowdah/config.ini file, such
+    as specifying the location of mime.types (if PHP cannot determinethe mime
+    type of a file by any other means)
+    
+Usage:
+
+The server will now be able to accept HTTP requests. For additional control over
+your files, you can create a .metadata.ini file in the parent directory of each
+file you want to extend. For example, if in an images/ folder there is a file
+flowers.jpg, which you want to specify has a mime-type of image/jpeg, you can
+create images/.metadata.ini with the following content:
+
+     [flowers.jpg]
+     content-type = image/jpeg
+
+You can also set controls on how folders are displayed. If you would like to
+specify whether accessing a folder should show a directory list, you can use the
+allow-directory-list option in the .metadata.ini file of its parent:
+
+     [images]
+     allow-directory-list = true
+
+If you would instead like to show a document when the folder is accessed (the
+equivalent of index.html, index.php, etc.), you can use the index setting:
+
+     index = flowers.jpg
+     
+Information:
+
+Server is a simple application that is meant to show the extensibility of the
+Chowdah library. You are free to modify, redistribute, and copy it in any way in
+accordance with the license.
