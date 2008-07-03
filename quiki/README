@@ -14,7 +14,9 @@ show how resources are created and how to interact with HTTP using Chowdah.
 
 Instructions:
 
- 1) Unpack the quiki directory into the root of your application.
+ 1) Unpack the contents of the quiki directory into the root of your
+    application. (NOTE: this must be at the root of a domain name, aka,
+    www.example.com/ and not www.example.com/some/sub/folder/)
  2) Rewrite all requests in the root folder to the .quiki/request.php file. On
     Apache servers, this can be done by creating an .htaccess file in the root
     folder and using mod_rewrite:
