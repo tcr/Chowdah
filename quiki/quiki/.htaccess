@@ -1,7 +1,0 @@
-# rewrite to Chowdah handler
-RewriteEngine On
-RewriteRule ^.* .quiki/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
-
-# Chowdah sanity directives
-# SecFilterEngine Off
-# DirectorySlash Off
