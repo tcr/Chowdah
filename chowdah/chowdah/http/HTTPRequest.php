@@ -110,6 +110,7 @@ class HTTPRequest extends HTTPMessage {
 
 		// create a new request object
 		$request = new HTTPRequest($_SERVER['REQUEST_METHOD']);
+		
 		// set the url
 		$request->setURL(new URL(array(
 			'scheme' => strtolower(preg_replace('/\/.*$/', '', $_SERVER['SERVER_PROTOCOL'])) .
@@ -187,6 +188,17 @@ class HTTPRequest extends HTTPMessage {
 		} else if ((int) $_SERVER['CONTENT_LENGTH']) {
 			// input from php://input stream
 			$request->setContent(file_get_contents('php://input'));
+		}
+		
+		// support html form compatibility
+		if (Chowdah::getConfigSetting('html_form_compat'))
+		{
+			// set method
+			if (is_string($request->parsedContent['request_method']))
+				$request->setMethod($request->parsedContent['request_method']);
+			// set content
+			if ($request->parsedContent['request_content'] instanceof IDocument)
+				$request->setContentAsDocument($request->parsedContent['request_content']);
 		}
 
 		// return the request

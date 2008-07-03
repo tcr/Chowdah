@@ -82,6 +82,9 @@ abstract class HTTPMessage {
 		// set MD5
 		if ($this->getHeader('Content-MD5'))
 			$this->generateMD5Digest();
+		
+		// clear parsed content cache
+		$this->parsedContentCache = null;
 	}
 
 	public function deleteContent() {
@@ -288,14 +291,23 @@ abstract class HTTPMessage {
 	//----------------------------------------------------------------------
 	// parsed content
 	//----------------------------------------------------------------------
+	
+	protected $parsedContentCache = null;
 
 	public function getParsedContent() {
+		// if this content was cached, return that
+		if ($this->parsedContentCache)
+			return $this->parsedContentCache;
+		
 		// return a parsed representation of the content (based on MIME type)
-		switch ($this->getContentType()->serialize(false)) {
+		$parsedContent = $this->getContent();
+		switch ($this->getContentType()->serialize(false))
+		{
 			case 'application/x-www-form-urlencoded':
 				// parse the content
-				return http_parse_query($this->getContent());
-
+				$parsedContent = http_parse_query($this->getContent());
+				break;
+				
 			case 'multipart/form-data':
 				// return the parsed form data
 				$data = array();
@@ -333,19 +345,22 @@ abstract class HTTPMessage {
 						$data[$disposition['name']] = $content;
 				}
 
-				return $data;
+				$parsedContent = $data;
+				break;
 
 			case 'text/xml':
 			case 'application/xml':
 			case 'application/xhtml+xml':
-				return DOMDocument::loadXML($this->getContent());
+				$parsedContent = DOMDocument::loadXML($this->getContent());
+				break;
 
 			case 'text/html':
-				return DOMDocument::loadHTML($this->getContent());
-
-			default:
-				return $this->getContent();
+				$parsedContent = DOMDocument::loadHTML($this->getContent());
+				break;
 		}
+		
+		// cache and return the content
+		return ($this->parsedContentCache = $parsedContent);
 	}
 
 	public function setParsedContent($data, $type = null) {
@@ -410,10 +425,12 @@ abstract class HTTPMessage {
 				$this->setContent($data);
 				break;
 		}
+		
+		// save data in cache
+		return ($this->parsedContentCache = $data);
 	}
 
 	//----------------------------------------------------------------------
-
 	// content as document
 	//----------------------------------------------------------------------
 	
