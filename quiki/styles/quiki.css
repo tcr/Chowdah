@@ -14,7 +14,7 @@ h1 a:hover { text-decoration: underline; }
 #user { float: right; margin: 0 0.75em 0 0; line-height: 2.8em; }
 
 #footer {  padding: 0.5em 0.5em; text-align: center; color: white; font-family: sans-serif; margin: 0; }
-#body { font-family: Georgia; padding: 0 1em; }
+#body { font-family: Georgia; padding: 0 1em; font-size: 1.1em; }
 
 #tags { padding: 0.5em 0 0; border-top: 1px solid #bbb; }
 
@@ -22,7 +22,11 @@ h1 a:hover { text-decoration: underline; }
 .actions a { text-decoration: none; }
 .actions input { font-size: 0.8em; }
 
-#body { font-size: 1.1em; }
+#pages, #pages th, #pages td { border-collapse: collapse; border: 1px solid #985; }
+#pages th { padding: 0.25em 0.5em; background: #cb8}
+#pages td { padding: 0.25em 0.5em; background: #ffe; }
+#pages { width: 100%; }
+#pages-title { width: 75%; }
 
 /* colors */
 #header, #footer { color: white; background: #907f4c; }

@@ -30,18 +30,14 @@ class Quiki
 	// database
 	//----------------------------------------------------------------------
 
-//[TODO] load from INI file
-	const DB_DSN = 'mysql:host=%s;dbname=%s';
-	const DB_HOST = 'localhost';
-	const DB_NAME = 'quiki';
-	const DB_USERNAME = 'root';
-	const DB_PASSWORD = '';	
-
 	static public function getDBConnection()
 	{
+		// load configuration file
+		$config = new INIFile('quiki.ini');
+	
 		// return a new database connection
-		$dsn = sprintf(Quiki::DB_DSN, Quiki::DB_HOST, Quiki::DB_NAME);
-		return new PDO($dsn, Quiki::DB_USERNAME, Quiki::DB_PASSWORD);
+		return new PDO(sprintf($config->getValue('db.dsn'), $config->getValue('db.host'),
+		    $config->getValue('db.name')), $config->getValue('db.user'), $config->getValue('db.password'));
 	}
 }
 

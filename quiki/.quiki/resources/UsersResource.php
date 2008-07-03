@@ -22,10 +22,10 @@ class UsersResource extends QuikiResourceBase implements ICollection
 				$node = $doc->addChild('user');
 				$node->name = $user->name;
 			}
-		/*} else if (Quiki::getAuthenticatedUser($request)) {
+		} else if (Quiki::getAuthenticatedUser($request)) {
 			// user cannot register when logged in
 			$response->setStatus(401);
-			$doc = new SimpleXMLElement('<registration authorized="false" />');*/
+			$doc = new SimpleXMLElement('<registration authorized="false" />');
 		} else {
 			// display registration page
 			$doc = new SimpleXMLElement('<registration />');
@@ -47,12 +47,12 @@ class UsersResource extends QuikiResourceBase implements ICollection
 			throw new HTTPStatusException(400, null, 'The submitted data was in an unparsable format.');
 
 		// user cannot register when logged in
-		/*if (Quiki::getAuthenticatedUser($request)) {
+		if (Quiki::getAuthenticatedUser($request)) {
 			$response->setStatus(401);
 			$doc = new SimpleXMLElement('<registration authorized="false" />');
 			$doc = dom_import_simplexml($doc)->ownerDocument;
 			return $this->formatResponse($request, $response, $doc);
-		}*/
+		}
 
 		// account creation
 		try {

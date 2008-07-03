@@ -1,6 +1,6 @@
 <?php
 
-class LoginResource extends QuikiResourceBase
+class InstallationResource extends QuikiResourceBase
 {
 	//----------------------------------------------------------------------
 	// HTTP methods
@@ -12,50 +12,58 @@ class LoginResource extends QuikiResourceBase
 	{
 		// create an XML respresentation of this object
 		$doc = new SimpleXMLElement('<installation />');
+		$doc->{'db-host'} = 'localhost';
+		$doc->{'db-name'} = 'quiki';
 		// create and send the response
 		return $this->formatResponse($request, new HTTPResponse(), $doc);
 	}
 
 	public function POST(HTTPRequest $request)
 	{
-		// get submitted data
-		$dbDSN = 'mysql:host=%s;dbname=%s';
+		// create the INI file
+		$file = new INIFile();
+		$file->setValue('db.dsn', 'mysql:host=%s;dbname=%s');
 #[TODO] not... hardcode that
-		$dbHost = $request->parsedContent['host'];
-		$dbUser = $request->parsedContent['user'];
-		$dbPassword = $request->parsedContent['password'];
-		$dbName = $request->parsedContent['name'];
+		$file->setValue('db.host', $request->parsedContent['db-host']);
+		$file->setValue('db.user', $request->parsedContent['db-user']);
+		$file->setValue('db.password', $request->parsedContent['db-password']);
+		$file->setValue('db.name', $request->parsedContent['db-name']);
 
 		try
 		{
+			// validate data
+			if (!$file->getValue('db.name'))
+				throw new Exception('Please enter in a valid database name.');
 			// attempt to connect to the database
-			$dbh = PDO(sprintf($dbDSN, $dbHost, $dbName), $dbUser, $dPassword);
+			$dbh = new PDO(sprintf($file->getValue('db.dsn'), $file->getValue('db.host'),
+			    $file->getValue('db.name')), $file->getValue('db.user'), $file->getValue('db.password'));
+
 			// run the install script
 			$dbh->exec(file_get_contents('data/install.sql'));
+			if ($dbh->errorCode() != '00000') {
+				$error = $dbh->errorInfo();
+				throw new Exception($error[2]);
+			}
 
-			// create the INI files
-#[TODONOW] arrayacess on INIFile, move this to top of function
-			$file = new INIFile();
-			$file->setValue('db.dsn', $dbDSN);
-			$file->setValue('db.host', $dbHost);
-			$file->setValue('db.user', $dbUser);
-			$file->setValue('db.password', $dbPassword);
-			$file->setValue('db.name', $dbName);
+			// create the new user
+			User::create($request->parsedContent['account-username'],
+			    $request->parsedContent['account-password'],
+			    $request->parsedContent['account-email']);
+
+			// save the INI file
 			$file->save('quiki.ini');
 
 			// display the main page
 			$root = new RootResource();
 			return $root->GET($request);
 		}
-		catch (PDOException $e)
+		catch (Exception $e)
 		{
 			// there was an error in the installation
-			$doc = new SimpleXMLElement('<installation error="true" />');
-			$doc->dsn = $dbDSN;
-			$doc->host = $dbHost
-			$doc->user = $dbUser;
-			$doc->password = $dbPassword;
-			$doc->name = $dbName;
+			$doc = new SimpleXMLElement('<installation />');
+			$doc['error'] = $e->getMessage();
+			foreach ($request->parsedContent as $key => $value)
+				$doc->{$key} = $value;
 			// create and send the response
 			return $this->formatResponse($request, new HTTPResponse(), $doc);
 		}

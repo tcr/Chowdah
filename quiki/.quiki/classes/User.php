@@ -50,7 +50,15 @@ class User {
 	// static functions
 	//----------------------------------------------------------------------
 	
-	static public function create($name, $password = null, $email = null) {
+	static public function create($name, $password, $email) {
+		// validate data
+		if (!preg_match('/^[A-Za-z_][A-Za-z_0-9\-]{0,254}$/', $name))
+			throw new Exception('Please enter a valid username. A username must start with a letter, and can only contain alphanumeric characters, except for `_` and `-`.');
+		if (!$password)
+			throw new Exception('Please enter a valid password.');
+		if (!$email)
+			throw new Exception('Please enter a valid e-mail address.');
+	
 		// create new user
 		User::$createQuery->execute(array($name, $password, $email));
 		return new User($name);
@@ -68,6 +76,9 @@ class User {
 		for ($i = 0, $passchars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; $i < 16; $i++)
 		    $password[] = $passchars[rand(0, strlen($passchars) - 1)];
 		$password = implode('', $password);
+		
+		// create the new account
+		User::create($name, $password, $email);
 
 		// send validation e-mail
 		if (!@mail($email,
@@ -79,9 +90,7 @@ class User {
 			"From: Quiki Admin <quiki@chowdah.googlecode.com>\r\n"
 		    ))
 			throw new Exception('The account confirmation could not be sent. Please enter a valid e-mail address.');
-			
-		// create the new account
-		User::create($name, $password, $email);		
+	
 		// return the temporary password
 		return $password;
 	}

@@ -37,6 +37,10 @@ class PagesResource extends QuikiResourceBase implements ICollection
 
 	public function POST(HTTPRequest $request)
 	{
+		// can only edit pages if we are logged in
+		if (!Quiki::getAuthenticatedUser($request))
+			throw new HTTPStatusException(401);
+			
 		// create new page
 		$data = $request->getParsedContent();
 		$page = Page::create($data['title'], $data['content'], preg_split('/\s+/', $data['tags'], null, PREG_SPLIT_NO_EMPTY));

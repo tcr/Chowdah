@@ -27,6 +27,11 @@
         <h2>Pages</h2>
 
         <table id="pages">
+          <columns>
+            <col id="pages-title" />
+            <col id="pages-tags" />
+          </columns>
+        
           <thead>
             <th>Title</th>
             <th>Tags</th>
@@ -57,7 +62,7 @@
           <p class="class"><input type="submit" value="Search" />&#160;<a href=".">Clear Search</a></p>
         </form>   
 
-        <p class="actions"><a href="?create">Create</a></p>     
+        <xsl:if test="$user"><p class="actions"><a href="?create">Create</a></p></xsl:if>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

@@ -31,10 +31,10 @@
         <h2>Page not found</h2>
 
         <div id="page-content" class="notice">
-          <p>A page for "<xsl:value-of select="title" />" does not currently exist. Would you like to <a href="{title}?edit">create</a> it?</p>
+          <p>A page for "<xsl:value-of select="title" />" does not currently exist.<xsl:if test="$user"> Would you like to <a href="{title}?edit">create</a> it?</xsl:if></p>
         </div>
         
-        <p class="actions"><a href="{title}?edit">Create</a></p>
+        <xsl:if test="$user"><p class="actions"><a href="{title}?edit">Create</a></p></xsl:if>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

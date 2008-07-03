@@ -10,6 +10,7 @@
     <xsl:choose>
       <xsl:when test="@edit">
         <h2>Edit Page</h2>
+        <p class="instruction">To format your content, you can use <a href="http://textile.thresholdstate.com/">Textile</a> markup.</p>
         
         <form method="post" action="{title}">
           <input type="hidden" name="request_method" value="PUT" />
@@ -22,6 +23,7 @@
               </dd>
             <dt><label>Tags:</label></dt>
               <dd>
+                <p class="instruction">Tags should be separated by a space (" ").</p>
                 <input type="text" name="tags">
                   <xsl:attribute name="value">
                     <xsl:value-of select="tags/tag[1]" />
@@ -56,7 +58,7 @@
           </p>
         </xsl:if>
         
-        <p class="actions"><a href="{title}?edit">Edit</a>&#160;<a href="{title}?delete">Delete</a></p>
+        <xsl:if test="$user"><p class="actions"><a href="{title}?edit">Edit</a>&#160;<a href="{title}?delete">Delete</a></p></xsl:if>
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>

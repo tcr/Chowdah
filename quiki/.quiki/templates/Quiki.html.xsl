@@ -22,7 +22,7 @@
         <div id="header">
           <h1><a href="/">Quiki</a></h1>
           <ul id="nav">
-            <li><a href="/pages/?create">Start a Page</a></li>
+            <xsl:if test="$user"><li><a href="/pages/?create">Start a Page</a></li></xsl:if>
             <li><a href="/pages/">Pages</a></li>
             <li><a href="/users/">Users</a></li>
           </ul>

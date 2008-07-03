@@ -74,7 +74,8 @@ class Chowdah {
 			throw new HTTPStatusException(301, 'Moved Permanently',
 			    null, array('Location' => $request->getURL() . '/'));
 		// or a document requested as a collection
-		if (substr($request->getURL()->path, -1) == '/' && !($resource instanceof ICollection))
+		if (strlen($request->getURL()->path) > 1 && substr($request->getURL()->path, -1) == '/'
+		    && !($resource instanceof ICollection))
 			throw new HTTPStatusException(404);
 		
 		// call the resource handler with the current request

@@ -37,7 +37,7 @@ class INIFile
 			{
 				// parse value
 				if (preg_match('/^"(?:\\.|[^"])*"|^\'(?:[^\']|\\.)*\'/', $matches[2], $value))
-					$value = str_replace('\\' . $value[0][0], $value[0][0], substr($value[0], 1, -1));
+					$value = stripslashes(substr($value[0], 1, -1));
 				else 
 					$value = preg_replace('/^["\']|\s*;.*$/', '', $matches[2]);
 				// parse data types
@@ -145,23 +145,23 @@ class INIFile
 	public function getValue($name, $section = '', $parseConstants = true)
 	{
 		// return value (and parse constants)
-		$section = $this->parseVariableName($name, $section, false);
-		return !$section ? null :
-		    !$parseConstants || !is_string($section[$name]) ? $section[$name] :
-		    preg_replace('/\{([^}]+)\}/e', "constant('\\1')", $section[$name]);
+		$section =& $this->parseVariableName($name, $section, false);
+		return (!$section ? null :
+		    ((!$parseConstants || !is_string($section[$name])) ? $section[$name] :
+		    preg_replace('/\{([^}]+)\}/e', "constant('\\1')", $section[$name])));
 	}
 	
 	public function setValue($name, $value, $section = '')
 	{
 		// add new entry
-		$section = $this->parseVariableName($name, $section, true);
+		$section =& $this->parseVariableName($name, $section, true);
 		return $section[$name] = $value;
 	}
 	
 	public function deleteValue($name, $section = '')
 	{
 		// delete entry
-		if ($section = $this->parseVariableName($name, $section, false))
+		if ($section =& $this->parseVariableName($name, $section, false))
 			unset($section[$name]);
 	}
 	

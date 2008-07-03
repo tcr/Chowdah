@@ -36,6 +36,10 @@ class PageResource extends QuikiResourceBase
 	}
 	
 	public function DELETE(HTTPRequest $request) {
+		// can only edit pages if we are logged in
+		if (!Quiki::getAuthenticatedUser($request))
+			throw new HTTPStatusException(401);
+			
 		// delete this resource
 		$this->page->delete();
 		
@@ -49,6 +53,10 @@ class PageResource extends QuikiResourceBase
 	}
 	
 	public function PUT(HTTPRequest $request) {
+		// can only edit pages if we are logged in
+		if (!Quiki::getAuthenticatedUser($request))
+			throw new HTTPStatusException(401);
+		
 		// preserve old title
 		$oldTitle = $this->page->title;
 		
