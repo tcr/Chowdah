@@ -23,7 +23,7 @@ class URL {
 		return ($this->scheme ? $this->scheme . '://' : '') .
 		    ($this->user ? urlencode($this->user) .
 		        ($this->pass ? ':' . urlencode($this->pass) : '') . '@' : '') .
-		    $this->host . ($this->port ? ':' . $this->port : '') . $this->path .
+		    $this->host . ($this->port && $this->port != '80' ? ':' . $this->port : '') . $this->path .
 		    ($this->query ? '?' . $this->query : '') . ($this->fragment ? '#' . $this->fragment : '');
 	}
 	

@@ -89,7 +89,7 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 			return false;
 		
 		// return the child object
-		return $child instanceof Collection ?
+		return $child instanceof ICollection ?
 		    new CollectionResource($child, $this->index) :
 		    new DocumentResource($child);
 	}
