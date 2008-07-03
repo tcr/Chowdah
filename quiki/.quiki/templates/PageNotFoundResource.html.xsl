@@ -6,7 +6,7 @@
   <!-- page title -->
   <xsl:param name="title" select="'Page not found'" />
 
-  <xsl:template match="/page">
+  <xsl:template match="/page-not-found">
     <xsl:choose>
       <xsl:when test="@edit">
         <h2>Creating Page "<xsl:value-of select="title" />"</h2>

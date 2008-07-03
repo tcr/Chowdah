@@ -21,7 +21,7 @@ class PageNotFoundResource extends QuikiResourceBase
 	
 	public function GET(HTTPRequest $request) {
 		// create an XML respresentation of this object
-		$doc = new SimpleXMLElement('<page />');
+		$doc = new SimpleXMLElement('<page-not-found />');
 		$doc->addChild('title', $this->title);
 		// add query data
 		foreach ($request->getParsedQueryData() as $key => $value)
