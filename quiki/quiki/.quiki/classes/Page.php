@@ -5,7 +5,11 @@ class Page {
 	protected $content;
 	protected $tags;
 	
-	function __construct($title) {
+	function __construct($title)
+	{
+		// initialize database handlers
+		Page::init();
+		
 		// get data for this object
 		Page::$readQuery->execute(array($title));
 		if (!($data = Page::$readQuery->fetch()))
@@ -19,7 +23,8 @@ class Page {
 		$this->tags = preg_split('/\s+/', $this->tags, null, PREG_SPLIT_NO_EMPTY);
 	}
 	
-	public function update($title = null, $content = null, $tags = null) {
+	public function update($title = null, $content = null, $tags = null)
+	{
 		// get database title
 		$dbTitle = $this->title;
 		
@@ -35,12 +40,14 @@ class Page {
 		Page::$updateQuery->execute(array($this->title, $this->content, implode(' ', $this->tags), $dbTitle));
 	}
 	
-	public function delete() {
+	public function delete()
+	{
 		// delete this object
 		return (bool) Page::$deleteQuery->execute(array($this->title));
 	}
 	
-	function __get($key) {
+	function __get($key)
+	{
 		// return protected values
 		if (isset($this->$key))
 			return $this->$key;
@@ -51,13 +58,21 @@ class Page {
 	// static functions
 	//----------------------------------------------------------------------
 	
-	static public function create($title, $content = null, $tags = null) {
+	static public function create($title, $content = null, $tags = null)
+	{
+		// initialize database handlers
+		Page::init();
+		
 		// create new page
 		Page::$createQuery->execute(array($title, $content, implode(' ', $tags)));
 		return new Page($title);
 	}
 	
-	static public function getList($search = array(), $start = 0, $limit = 999999) {
+	static public function getList($search = array(), $start = 0, $limit = 999999)
+	{
+		// initialize database handlers
+		Page::init();
+		
 		// create where clause
 		$bindParams = array();
 		if ($search['title']) {
@@ -114,16 +129,21 @@ class Page {
 	protected static $deleteQuery;
 	
 	static public function init() {
+		// initialized flag
+		static $init = false;
+		if ($init)
+			return;
+			
 		// initialize database handlers
 		Page::$dbh = Quiki::getDBConnection();
 		Page::$createQuery = Page::$dbh->prepare('INSERT INTO `pages` (`title`, `content`, `tags`) VALUES (?, ?, ?)');
 		Page::$readQuery = Page::$dbh->prepare('SELECT * FROM `pages` WHERE `title` = ?');
 		Page::$updateQuery = Page::$dbh->prepare('UPDATE `pages` SET `title` = ?, `content` = ?, `tags` = ? WHERE `title` = ?');
 		Page::$deleteQuery = Page::$dbh->prepare('DELETE FROM `pages` WHERE `title` = ? LIMIT 1');
+		
+		// set init flag
+		return ($init = true);
 	}
 }
-
-// initialize database handlers
-Page::init();
 
 ?>

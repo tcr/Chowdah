@@ -28,6 +28,7 @@ class InstallationResource extends QuikiResourceBase
 		$file->setValue('db.user', $request->parsedContent['db-user']);
 		$file->setValue('db.password', $request->parsedContent['db-password']);
 		$file->setValue('db.name', $request->parsedContent['db-name']);
+		$file->save('quiki.ini');
 
 		try
 		{
@@ -50,16 +51,16 @@ class InstallationResource extends QuikiResourceBase
 			    $request->parsedContent['account-password'],
 			    $request->parsedContent['account-email']);
 
-			// save the INI file
-			$file->save('quiki.ini');
-
 			// display the main page
 			$root = new RootResource();
 			return $root->GET($request);
 		}
 		catch (Exception $e)
 		{
-			// there was an error in the installation
+			// delete ini file
+			unlink('quiki.ini');
+			
+			// show there was an error in the installation
 			$doc = new SimpleXMLElement('<installation />');
 			$doc['error'] = $e->getMessage();
 			foreach ($request->parsedContent as $key => $value)

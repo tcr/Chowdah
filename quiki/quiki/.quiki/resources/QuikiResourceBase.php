@@ -23,7 +23,7 @@ abstract class QuikiResourceBase extends HTTPResourceBase
 		// set path
 		$xsl->setParameter(null, 'path', $request->getURL()->path);
 		// set user parameters
-		if ($user = Quiki::getAuthenticatedUser($request))
+		if (is_file('quiki.ini') && $user = Quiki::getAuthenticatedUser($request))
 			$xsl->setParameter(null, 'user', $user->name);
 	
 		// transform the document
