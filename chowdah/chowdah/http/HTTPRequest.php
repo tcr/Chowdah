@@ -8,20 +8,16 @@
 class HTTPRequest extends HTTPMessage {
 	// message data
 	protected $method = 'GET';
-	protected $url;
-	protected $version = '1.0';
+	protected $url = '';
 
-	function __construct($method = null, $url = null, $version = null) {
+	function __construct($method = 'GET', $url = '', $version = 1.0) {
 		// create the URL object
 		$this->url = new URL();
 
 		// set variables
-		if ($method !== null)
-			$this->setMethod($method);
-		if ($url !== null)
-			$this->setURL($url);
-		if ($version !== null)
-			$this->setHTTPVersion($version);
+		$this->setMethod($method);
+		$this->setURL($url);
+		$this->setHTTPVersion($version);
 		// call parent constructor
 		parent::__construct();
 	}
