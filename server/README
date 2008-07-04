@@ -11,9 +11,9 @@ of file metadata through the use of .metadata.ini files.
 
 Instructions:
 
- 1) Unpack the .server directory into the root of your application. (NOTE: this
-    must be at the root of a domain name, aka, www.example.com/ and not
-    www.example.com/some/sub/folder/)
+ 1) Unpack the contents of the  server directory into the root of your
+    application. (NOTE: this must be at the root of a domain name, aka,
+    www.example.com/ and not www.example.com/some/sub/folder/)
  2) Rewrite all requests to the root folder to the .server/request.php file. On
     Apache servers, this can be done by creating an .htaccess file in the root
     folder and using mod_rewrite:
