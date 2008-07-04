@@ -99,11 +99,6 @@ class HTTPRequest extends HTTPMessage {
 	//------------------------------------------------------------------
 
 	static public function getCurrent() {
-		// cache the current request
-		static $request = null;
-		if ($request !== null)
-			return $request;
-
 		// create a new request object
 		$request = new HTTPRequest($_SERVER['REQUEST_METHOD']);
 		
@@ -127,10 +122,6 @@ class HTTPRequest extends HTTPMessage {
 			foreach (getallheaders() as $key => $value)
 				$request->setHeader($key, $value);
 		} else {
-			// HTTP Authorization header workaround
-			if (!$_SERVER['HTTP_AUTHORIZATION'] && Chowdah::getConfigSetting('auth_header_key'))
-				$_SERVER['HTTP_AUTHORIZATION'] = $_SERVER[Chowdah::getConfigSetting('auth_header_key')];
-
 			// extract headers from $_SERVER array
 			// (entries formatted as HTTP_* are interpreted as HTTP headers)
 			foreach (preg_grep('/^HTTP_/i', array_keys($_SERVER)) as $key)
@@ -146,20 +137,6 @@ class HTTPRequest extends HTTPMessage {
 			else if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']))
 				$request->setHeader('Authorization', 'Basic ' .
 				    base64_encode($_SERVER['PHP_AUTH_USER'] . ':' . $_SERVER['PHP_AUTH_PW']));
-		}
-
-#[TODO] expand this?
-		// fix some browser Accept: strings
-		if ($agent = $request->getUserAgentInfo()) {
-			// IE 5 & IE 6
-			if ($agent->browser == 'IE' && $agent->majorver >=5 && $agent->majorver <=6)
-				$request->setHeader('Accept', 'text/html,text/xml,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5');
-			// IE 4
-			if ($agent->browser == 'IE' && $agent->majorver == 4)
-				$request->setHeader('Accept', 'text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5');
-			// Netscape 4
-			if ($agent->browser == 'Netscape' && $agent->majorver == 4)
-				$request->setHeader('Accept', 'text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5');
 		}
 
 		// set the content
@@ -184,17 +161,6 @@ class HTTPRequest extends HTTPMessage {
 		} else if ((int) $_SERVER['CONTENT_LENGTH']) {
 			// input from php://input stream
 			$request->setContent(file_get_contents('php://input'));
-		}
-		
-		// support html form compatibility
-		if (Chowdah::getConfigSetting('html_form_compat'))
-		{
-			// set method
-			if (is_string($request->parsedContent['request_method']))
-				$request->setMethod($request->parsedContent['request_method']);
-			// set content
-			if ($request->parsedContent['request_content'] instanceof IDocument)
-				$request->setContentAsDocument($request->parsedContent['request_content']);
 		}
 
 		// return the request

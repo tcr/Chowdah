@@ -5,30 +5,36 @@
  * @package chowdah
  */
 
-class Chowdah {
+class Chowdah
+{
 	//----------------------------------------------------------------------
 	// initialization functions
 	//----------------------------------------------------------------------
 
-	static public function init() {
+	static public function init()
+	{
 		// load configuration data
 		Chowdah::loadConfigSettings();
 			
 		// exception/error handling
-#[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
-		set_exception_handler(array('Chowdah', 'exceptionHandler'));
+		if (Chowdah::getConfigSetting('catch_errors'))
+			set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
+		if (Chowdah::getConfigSetting('catch_exceptions'))
+			set_exception_handler(array('Chowdah', 'exceptionHandler'));
 		
 		// stat logging
 		Chowdah::logStats();
 		register_shutdown_function(array('Chowdah', 'logStats'));
 	}
 	
-	static public function getRootPath() {
+	static public function getRootPath()
+	{
 		// get root path
 		return dirname(__FILE__);
 	}
 	
-	static public function getArgument($name) {
+	static public function getArgument($name)
+	{
 		// load server args
 		parse_str($_SERVER['argv'][0], $args);
 		return $args[$name];
@@ -38,25 +44,30 @@ class Chowdah {
 	// error handling
 	//----------------------------------------------------------------------
 	
-	static public function exceptionHandler($exception) {
+	static public function exceptionHandler($exception)
+	{
 		// if the exception is generic, throw a 500 Internal Server Error
 		if (!($exception instanceof HTTPStatusException))
 			$exception = new HTTPStatusException(500, 'Internal Server Error', $exception->getMessage());
 		// display the error message
 		$exception->getHTTPResponse()->send();
+#[TODO] log exception?
 	}
 	
-	static public function errorHandler($errno, $errstr, $errfile, $errline) {
-		// convert errors to exceptions (for presentation sake)
+	static public function errorHandler($errno, $errstr, $errfile, $errline)
+	{
+		// if we're reporting errors, display a 500 Internal Server Error
 		if (error_reporting())
-			throw new Exception($errstr, $errno);
+			$exception = new HTTPStatusException(500, 'Internal Server Error', $errstr);
+#[TODO] log error?
 	}
 
 	//----------------------------------------------------------------------
 	// request handler
 	//----------------------------------------------------------------------
 	
-	static public function handle(HTTPRequest $request, IHTTPResource $root, $rootPath = null) {
+	static public function handle(HTTPRequest $request, IHTTPResource $root, $rootPath = null)
+	{
 		// get root andrequest path
 		$rootPath = ($rootPath ? @realpath($rootPath) : @realpath($_SERVER['DOCUMENT_ROOT']));
 		$requestPath = @realpath($_SERVER['DOCUMENT_ROOT']) . $request->getURL()->path;
@@ -92,15 +103,51 @@ class Chowdah {
 		return $response;
 	}
 
-	static public function handleCurrentRequest(IHTTPResource $root, $rootPath = null) {
-		return Chowdah::handle(HTTPRequest::getCurrent(), $root, $rootPath);
+	static public function handleCurrentRequest(IHTTPResource $root, $rootPath = null)
+	{
+		return Chowdah::handle(Chowdah::getCurrentRequest(), $root, $rootPath);
+	}
+	
+	static public function getCurrentRequest()
+	{
+		// get the current HTTP request
+		$request = HTTPRequest::getCurrent();
+		
+#[TODO] better specify this format
+		// fix browser Accept: strings
+		if ($agent = $request->getUserAgentInfo()) {
+			// get override
+			$accept = Chowdah::getConfigSetting('accept');
+			if ($override = $accept[$agent->browser][$agent->majorver])
+				$request->setHeader('Accept', $override);
+		}
+		
+		// html form compatibility
+		if (Chowdah::getConfigSetting('html_form_compat'))
+		{
+			// set method
+			if (is_string($request->parsedContent['request_method']))
+				$request->setMethod($request->parsedContent['request_method']);
+			// set content
+			if ($request->parsedContent['request_content'] instanceof IDocument)
+				$request->setContentAsDocument($request->parsedContent['request_content']);
+		}
+		
+		// HTTP Authorization header workaround
+		if (!function_exists('getallheaders') && !$_SERVER['HTTP_AUTHORIZATION']
+		    && Chowdah::getConfigSetting('auth_header_key'))
+			$request->setHeader('Authorization', $_SERVER[Chowdah::getConfigSetting('auth_header_key')]);
+		
+		// return the modified request
+		return $request;
 	}
 	
 	//----------------------------------------------------------------------
 	// logging
 	//----------------------------------------------------------------------
 
-	static public function log() {
+	static public function log()
+	{
 		// check if a log file was requested
 		if (!strlen($file = Chowdah::getConfigSetting('request_log')))
 			return false;
@@ -110,7 +157,8 @@ class Chowdah {
 			file_put_contents(Chowdah::getRootPath() . '/' . $file, (string) $arg . "\n", FILE_APPEND);
 	}
 
-	static public function logStats() {
+	static public function logStats()
+	{
 		static $start_time = null;
 	
 		// get the stat data
@@ -135,7 +183,8 @@ class Chowdah {
 	
 	protected static $configSettings = array();
 	
-	static public function loadConfigSettings() {
+	static public function loadConfigSettings()
+	{
 		if (!is_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE))
 			return false;
 	
@@ -144,15 +193,19 @@ class Chowdah {
 		Chowdah::$configSettings = (array) $config->getSection();
 	}
 	
-	static public function getConfigSetting($name) {
+#[TODO] what about sections?
+	static public function getConfigSetting($name)
+	{
 		return Chowdah::$configSettings[$name];
 	}
 	
-	static public function setConfigSetting($name, $value) {
+	static public function setConfigSetting($name, $value)
+	{
 		return (Chowdah::$configSettings[$name] = $value);
 	}
 	
-	static public function deleteConfigSetting($name) {
+	static public function deleteConfigSetting($name)
+	{
 		unset(Chowdah::$configSettings[$name]);
 	}
 }

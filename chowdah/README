@@ -60,7 +60,7 @@ in your Chowdah directory. The following options are currently available:
      In the PHP environment, this would may be set as $REDIRECT_REMOTE_USER.
      Check your own environment to see how this acts.
      
-  html_form_compat (example: html_form_compat = true)
+  html_form_compat = (true|false)
   
      HTML forms, by default, only support the GET and POST methods. This option
      allows "POST tunnelling"--that is, the support of HTTP methods other than
@@ -82,6 +82,30 @@ in your Chowdah directory. The following options are currently available:
      situations where using PUT, DELETE, or other methods directly would work.
      Enabling this feature may also be a potential security risk if methods
      other than POST are intentionally blocked; use it at your own risk.
+   
+   accept.* (example: accept.ie.4 = "text/html,image/*;q=0.9,*/*;q=0.5")
+   
+     Many older browsers have broken Accept: headers, defeating the usefulness
+     of content-negotiation. In your config.ini file, you can specify overrides
+     to accept headers, and Chowdah will transparently rewrite your requests.
+     Here are some useful overrides:
+     
+     accept.IE.4 = "text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
+     accept.IE.5 = "text/html,text/xml,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
+     accept.IE.6 = "text/html,text/xml,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
+     accept.Netscape.4 = "text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
+     
+   catch_errors = (true|false)
+   
+     If set to true, all errors are caught and displayed as a 500 Internal
+     Server Error. Otherwise, unsuppressed errors are displayed as normal
+     (potentially breaking HTTP headers).
+     
+   catch_exceptions = (true|false)
+   
+     If set to true, all exceptions are caught and displayed as a 500 Internal 
+     Server Error. Otherwise, uncaught exceptions are displayed as normal
+     (potentially breaking HTTP headers).
      
 Applications:
      
