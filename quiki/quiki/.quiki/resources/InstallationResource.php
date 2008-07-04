@@ -40,7 +40,7 @@ class InstallationResource extends QuikiResourceBase
 			    $file->getValue('db.name')), $file->getValue('db.user'), $file->getValue('db.password'));
 
 			// run the install script
-			$dbh->exec(file_get_contents('data/install.sql'));
+			$dbh->query(file_get_contents('data/install.sql'));
 			if ($dbh->errorCode() != '00000') {
 				$error = $dbh->errorInfo();
 				throw new Exception($error[2]);
