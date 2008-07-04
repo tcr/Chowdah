@@ -27,8 +27,10 @@ Instructions:
      # DirectorySlash Off
  
  3) (Optional) Configure chowdah using the .server/chowdah/config.ini file, such
-    as specifying the location of mime.types (if PHP cannot determinethe mime
+    as specifying the location of mime.types (if PHP cannot determine the mime
     type of a file by any other means)
+ 4) Navigate to the root folder using your web browser to see that installation
+    has been successful.
     
 Usage:
 

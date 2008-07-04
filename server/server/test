@@ -1,0 +1,12 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+ "http://www.w3.org/TR/html4/strict.dtd">
+
+<html lang="en-US">
+ <head>
+  <title>Server for Chowdah</title>
+ </head>
+ <body>
+  <h1>Server for Chowdah</h1>
+  <p>This is a test page to show that Server is working! Now that you've installed it, take a look at the <kbd>.metadata.ini</kbd> file and the Server source code to see what makes it tick.</p>
+ </body>
+</html>
