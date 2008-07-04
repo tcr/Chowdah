@@ -7,22 +7,24 @@ library to manipulate HTTP requests and responses, create "resource" objects
 which can be manipulated via HTTP calls, and manipulate files, documents, and
 collection objects.
 
+Usage:
+
 To get started on an Apache server, extract the "chowdah" directory to where you
 want the Chowdah library to be located. In your application folder, create a
 request-handling script akin to the following:
 
-	<?php
+     <?php
 	
-	// load Chowdah class
-	require 'chowdah/Chowdah.php';
+     // load Chowdah class
+     require 'chowdah/Chowdah.php';
 	
-	// import classes, init, &c...
+     // import classes, init, &c...
 	
-	// load Chowdah
-	Chowdah::init();
-	Chowdah::handleCurrentRequest(new RootResource())->send();
+     // load Chowdah
+     Chowdah::init();
+     Chowdah::handleCurrentRequest(new RootResource())->send();
 	
-	?>
+     ?>
 
 Then in your root folder, create an .htaccess file rewriting all requests to the
 request handling script. For example:
@@ -30,10 +32,65 @@ request handling script. For example:
      # rewrite to request handler
      RewriteEngine On
      RewriteRule ^.* .application/request.php
+
+Configuration:
+
+To have greater control over how Chowdah operates, you can create a "config.ini"
+in your Chowdah directory. The following options are currently available:
+
+  request_log (example: request_log = "../request.log")
+  
+     This generates a log of each HTTP request made to a resource, the method
+     used, and the time it takes to generate the resource.
+     
+  mime_types (example: mime_types = "/etc/mime.types")
+  
+     Points to the location of mime.types on the server. This is useful if you
+     are loading static files from the server (using the FSDocument class), and
+     when other MIME type detection methods aren't available.
+
+  auth_header_key (example: auth_header_key = "REDIRECT_REMOTE_USER")
+  
+     On some Apache servers, the Authorization header is not available. By using
+     mod_rewrite, you can create a rule to include this header as an environment
+     variable:
+     
+     RewriteRule ^.* .application/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
+     
+     In the PHP environment, this would may be set as $REDIRECT_REMOTE_USER.
+     Check your own environment to see how this acts.
+     
+  html_form_compat (example: html_form_compat = true)
+  
+     HTML forms, by default, only support the GET and POST methods. This option
+     allows "POST tunnelling"--that is, the support of HTTP methods other than
+     POST by directing it through a POST request. By including certain fields in
+     your HTML form, you can transparently redirect the submission to another
+     method function as if it actually used that method. In your HTML form, add
+     a field called "http_method" to specify the method you want to use:
+     
+       <input type="hidden" name="http_method" value="DELETE">
+       
+     In your resource, the DELETE() function, rather than POST(), would then be
+     called, with no noticable difference as though it were an actual DELETE
+     request. In the case of file uploads, you can also specify that an upload
+     be used as the body of the request (such as emulating the PUT method):
+     
+       <input type="file" name="http_content">
+       
+     This feature is specifically for HTML forms and should not be used in
+     situations where using PUT, DELETE, or other methods directly would work.
+     Enabling this feature may also be a potential security risk if methods
+     other than POST are intentionally blocked; use it at your own risk.
+     
+Applications:
      
 To view sample applications, look in the "apps" folder of this archive. For more
 information, visit the website at:
 
      http://code.google.com/p/chowdah/
+     
+Credits:
 
-Chowdah is released under the GNU General Public License v2 or later.
+Chowdah is copyright (c) 2008 Tim Cameron Ryan. The Chowdah library is released
+under the GNU General Public License v2 or later.

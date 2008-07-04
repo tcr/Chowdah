@@ -11,6 +11,9 @@ class Chowdah {
 	//----------------------------------------------------------------------
 
 	static public function init() {
+		// load configuration data
+		Chowdah::loadConfigSettings();
+			
 		// exception/error handling
 #[TODO]		set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
 		set_exception_handler(array('Chowdah', 'exceptionHandler'));
@@ -130,17 +133,27 @@ class Chowdah {
 	// configuration location
 	const CONFIG_FILE = 'config.ini';
 	
-	static public function getConfigFile() {
-		// load (cached) config file
-		static $configFile = null;
-		if (!$configFile)
-			$configFile = new INIFile(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
-		return $configFile;
+	protected static $configSettings = array();
+	
+	static public function loadConfigSettings() {
+		if (!is_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE))
+			return false;
+	
+		// load settings
+		$config = new INIFile(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+		Chowdah::$configSettings = (array) $config->getSection();
 	}
 	
 	static public function getConfigSetting($name) {
-		// shorthand configuration checking
-		return Chowdah::getConfigFile()->getValue($name);
+		return Chowdah::$configSettings[$name];
+	}
+	
+	static public function setConfigSetting($name, $value) {
+		return (Chowdah::$configSettings[$name] = $value);
+	}
+	
+	static public function deleteConfigSetting($name) {
+		unset(Chowdah::$configSettings[$name]);
 	}
 }
 

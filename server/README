@@ -21,6 +21,10 @@ Instructions:
      # rewrite to request handler
      RewriteEngine On
      RewriteRule ^.* .server/request.php
+     
+     # These may be needed on some servers
+     # SecFilterEngine Off
+     # DirectorySlash Off
  
  3) (Optional) Configure chowdah using the .server/chowdah/config.ini file, such
     as specifying the location of mime.types (if PHP cannot determinethe mime
