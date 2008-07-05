@@ -17,6 +17,7 @@ class Chowdah
 		Chowdah::loadConfigSettings();
 			
 		// exception/error handling
+#[TODO] should these be on by default?
 		if (Chowdah::getConfigSetting('catch_errors'))
 			set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
 		if (Chowdah::getConfigSetting('catch_exceptions'))
@@ -27,10 +28,18 @@ class Chowdah
 		register_shutdown_function(array('Chowdah', 'logStats'));
 	}
 	
-	static public function getRootPath()
+	static public function getLibraryPath()
 	{
 		// get root path
 		return dirname(__FILE__);
+	}
+	
+	static public function getApplicationPath()
+	{
+		// return the root of the application (parent of the request handler)
+		if (!($root = Chowdah::getConfigSetting('application_root')))
+			$root = '..';
+		return @realpath($_SERVER['DOCUMENT_ROOT'] . dirname($_SERVER['SCRIPT_NAME']) . '/' . $root);
 	}
 
 	//----------------------------------------------------------------------
@@ -59,18 +68,18 @@ class Chowdah
 	// request handler
 	//----------------------------------------------------------------------
 	
-	static public function handle(HTTPRequest $request, IHTTPResource $root, $rootPath = null)
+	static public function handle(HTTPRequest $request, IHTTPResource $root)
 	{
-#[TODO] figure out how to do this automatically... and still support symlinks in getApplicationPath()
-		// get root and request path
-		$rootPath = ($rootPath ? @realpath($rootPath) : @realpath($_SERVER['DOCUMENT_ROOT']));
-		$requestPath = @realpath($_SERVER['DOCUMENT_ROOT']) . $request->getURL()->path;
-		// validate requested path
-		if (substr($requestPath, 0, strlen($rootPath)) != $rootPath)
-			throw new Exception('Requested path does not match root path.');
-
 		// get the requested path
-		$path = array_map('urldecode', array_filter(explode('/', substr($requestPath, strlen($rootPath))), 'strlen'));
+		$path = array_map('urldecode', array_filter(explode('/', $request->getURL()->path), 'strlen'));
+		// get the root application path
+		$rootPath = Chowdah::getApplicationPath();
+		$tmpPath = @realpath($_SERVER['DOCUMENT_ROOT']);
+		while ($tmpPath != $rootPath && count($path))
+			$tmpPath = @realpath($tmpPath . '/' . array_shift($path));
+		if ($tmpPath != $rootPath)
+			throw new Exception('The path of the Chowdah application could not be resolved.');
+			
 		// descend the tree
 		$resource = $root;
 		foreach ($path as $file)
@@ -97,15 +106,10 @@ class Chowdah
 		return $response;
 	}
 
-	static public function handleCurrentRequest(IHTTPResource $root, $rootPath = null)
+	static public function handleCurrentRequest(IHTTPResource $root)
 	{
 		// shorthand to handle current HTTP request using Chowdah
-		return Chowdah::handle(Chowdah::getCurrentRequest(), $root, $rootPath);
-	}
-	
-	static public function getApplicationPath()
-	{
-#[TODO]		// count up! use document_root, realpath, ascend heirarchy until we reach caller path (wherever that be)
+		return Chowdah::handle(Chowdah::getCurrentRequest(), $root);
 	}
 	
 	static public function getCurrentRequest()
@@ -154,7 +158,7 @@ class Chowdah
 			
 		// log the supplied arguments
 		foreach (func_get_args() as $arg)
-			file_put_contents(Chowdah::getRootPath() . '/' . $file, (string) $arg . "\n", FILE_APPEND);
+			file_put_contents(Chowdah::getLibraryPath() . '/' . $file, (string) $arg . "\n", FILE_APPEND);
 	}
 
 	static public function logStats()
@@ -185,11 +189,11 @@ class Chowdah
 	
 	static public function loadConfigSettings()
 	{
-		if (!is_file(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE))
+		if (!is_file(Chowdah::getLibraryPath() . '/' . Chowdah::CONFIG_FILE))
 			return false;
 	
 		// load settings
-		$config = new INIFile(Chowdah::getRootPath() . '/' . Chowdah::CONFIG_FILE);
+		$config = new INIFile(Chowdah::getLibraryPath() . '/' . Chowdah::CONFIG_FILE);
 		Chowdah::$configSettings = (array) $config->getSection();
 	}
 	
@@ -218,9 +222,9 @@ class Chowdah
 require_once 'import.php';
 
 // import classes
-import(Chowdah::getRootPath() . '/file');
-import(Chowdah::getRootPath() . '/http');
-import(Chowdah::getRootPath() . '/utils');
-import(Chowdah::getRootPath() . '/resources');
+import(Chowdah::getLibraryPath() . '/file');
+import(Chowdah::getLibraryPath() . '/http');
+import(Chowdah::getLibraryPath() . '/utils');
+import(Chowdah::getLibraryPath() . '/resources');
 
 ?>

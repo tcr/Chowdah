@@ -5,7 +5,8 @@
    doctype-public="-//W3C//DTD HTML 4.01//EN" />
   
   <!-- parameters -->
-  <xsl:param name="path" select="''" />
+  <xsl:param name="path" />
+  <xsl:param name="root" />
   <xsl:param name="title" />
   <xsl:param name="user" />
 
@@ -13,23 +14,23 @@
     <html lang="en-US">
       <head>
         <title>Quiki<xsl:if test="$title"> | <xsl:value-of select="$title" /></xsl:if></title>
-        <link rel="stylesheet" type="text/css" href="/styles/quiki.css" media="screen" />
-        <script src="/scripts/jquery.js" />
-        <script src="/scripts/quiki.js" />
+        <link rel="stylesheet" type="text/css" href="{$root}/styles/quiki.css" media="screen" />
+        <script src="{$root}/scripts/jquery.js" />
+        <script src="{$root}/scripts/quiki.js" />
       </head>
 
       <body>
         <div id="header">
-          <h1><a href="/">Quiki</a></h1>
+          <h1><a href="{$root}/">Quiki</a></h1>
           <ul id="nav">
-            <xsl:if test="$user"><li><a href="/pages/?create">Start a Page</a></li></xsl:if>
-            <li><a href="/pages/">Pages</a></li>
-            <li><a href="/users/">Users</a></li>
+            <xsl:if test="$user"><li><a href="{$root}/pages/?create">Start a Page</a></li></xsl:if>
+            <li><a href="{$root}/pages/">Pages</a></li>
+            <li><a href="{$root}/users/">Users</a></li>
           </ul>
           <p id="user">
             <xsl:choose>
-              <xsl:when test="$user">Logged in as <a href="/users/{$user}"><xsl:value-of select="$user" /></a>.</xsl:when>
-              <xsl:otherwise><a href="/login">Login</a> or <a href="/users/?register">register</a>.</xsl:otherwise>
+              <xsl:when test="$user">Logged in as <a href="{$root}/users/{$user}"><xsl:value-of select="$user" /></a>.</xsl:when>
+              <xsl:otherwise><a href="{$root}/login">Login</a> or <a href="{$root}/users/?register">register</a>.</xsl:otherwise>
             </xsl:choose>
           </p>
         </div>

@@ -33,7 +33,8 @@ class FSDocument extends FSFile implements IWriteableDocument {
 		else if (function_exists('finfo_open'))
 			return MIMEType::parse(finfo::file($this->getPath(),
 			    FILEINFO_MIME, $this->getContext()));
-		if ($file = Chowdah::getConfigSetting('mime_types')) {
+		else if (($file = Chowdah::getConfigSetting('mime_types')) && is_file($file))
+		{
 			$ext = array_pop(explode('.', $this->getFilename()));
 			if (preg_match('/^([^#]\S+)[\t ]+.*\b' . $ext . '\b.*$/m', file_get_contents($file), $m))
 				return MIMEType::parse($m[1]);
@@ -45,7 +46,7 @@ class FSDocument extends FSFile implements IWriteableDocument {
 	}
 	
 	public function setContentType(MIMEType $mimetype) {
-		// can't set the content type
+		// cannot set the content type on filesystem
 		return false;
 	}
 }

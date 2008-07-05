@@ -22,6 +22,7 @@ abstract class QuikiResourceBase extends HTTPResourceBase
 
 		// set path
 		$xsl->setParameter(null, 'path', $request->getURL()->path);
+		$xsl->setParameter(null, 'root', Chowdah::getApplicationPath());
 		// set user parameters
 		if (is_file('quiki.ini') && $user = Quiki::getAuthenticatedUser($request))
 			$xsl->setParameter(null, 'user', $user->name);

@@ -15,8 +15,9 @@ URL-rewriting capabilities.
 Usage:
 
 To get started, extract the "chowdah" directory to where you want the Chowdah
-library to be located (normally your application's root folder). Next, create
-a request-handling script called "request.php" that follows this pattern:
+library to be located (normally your application's script folder). Next, create
+a request-handling script called "request.php" in your script folder that
+initializes Chowdah. For example:
 
 	<?php
 	
@@ -31,14 +32,13 @@ a request-handling script called "request.php" that follows this pattern:
 	
 	?>
 
-Next, all requests to the root folder must be rewritten to that script. On
-Apache servers, this can be done with the following .htaccess file in your
-application folder:
+Next, all requests to the root folder must be rewritten to the script. On Apache
+servers, this can be done with the following .htaccess file in the root folder:
 
-	# rewrite all requests to request handler
+	# rewrite all requests to the handler
 	<IfModule mod_rewrite.c>
 	  RewriteEngine On
-	  RewriteRule ^.* .application/request.php
+	  RewriteRule ^.* .application/request.php  # change this to the path of request.php
 	</IfModule>
 	
 	# the following features are disabled to prevent them from modifying
@@ -50,14 +50,19 @@ application folder:
 	  DirectorySlash Off
 	</IfModule>
 
-Where ".application/request.php" is the location of your handler script. For IIS
-or other servers, you will need your own URL rewriting solution to redirect all
-requests to the script.
+For IIS or other servers, you will need to find an alternative URL rewriting
+solution.
 
 Configuration:
 
 To have greater control over how Chowdah operates, you can create a "config.ini"
 in your Chowdah directory. The following options are currently available:
+
+  application_root (example: application_root = "..")
+  
+     By default, Chowdah assumes the root of your application is the parent
+     folder of the request handler; this setting allows you to modify this
+     behavior. This setting is important for resolving request URLs.
 
   request_log (example: request_log = "../request.log")
   
