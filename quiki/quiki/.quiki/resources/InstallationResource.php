@@ -1,7 +1,19 @@
 <?php
 
-class InstallationResource extends QuikiResourceBase
+class InstallationResource extends QuikiResourceBase implements ICollection
 {
+	//----------------------------------------------------------------------
+	// construction
+	//----------------------------------------------------------------------
+	
+	protected $collection;
+
+	function __construct()
+	{
+		// get the internal collection object
+		$this->collection = new CollectionResource(new FSCollection('..'), false);
+	}
+	
 	//----------------------------------------------------------------------
 	// HTTP methods
 	//----------------------------------------------------------------------
@@ -68,6 +80,16 @@ class InstallationResource extends QuikiResourceBase
 			// create and send the response
 			return $this->formatResponse($request, new HTTPResponse(), $doc);
 		}
+	}
+	
+	//----------------------------------------------------------------------
+	// collection
+	//----------------------------------------------------------------------
+
+	public function getChild($filename)
+	{
+		// get the child resource
+		return $this->collection->getChild($filename);
 	}
 }
 

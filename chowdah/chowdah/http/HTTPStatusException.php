@@ -27,10 +27,10 @@ class HTTPStatusException extends Exception {
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
  <head>
-  <title>'. $this->response->getStatusCode() . ' Error: '. $this->response->getStatusMessage() . '</title>
+  <title>'. $this->response->getStatusCode() . ' Error: '. $this->response->getReasonPhrase() . '</title>
  </head>
  <body>
-  <h1>'. $this->response->getStatusCode() . ' Error: '. $this->response->getStatusMessage() . '</h1>
+  <h1>'. $this->response->getStatusCode() . ' Error: '. $this->response->getReasonPhrase() . '</h1>
 ' . ($extendedMessage ? '  <p>' . htmlspecialchars($extendedMessage) . "</p>\n" : '') . '  <hr>
   <p><strong>' . $request->getMethod() . '</strong> on <em>' . $request->getURL()->serialize() . '</em></p>
  </body>

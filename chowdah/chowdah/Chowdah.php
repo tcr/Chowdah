@@ -17,10 +17,10 @@ class Chowdah
 		Chowdah::loadConfigSettings();
 			
 		// exception/error handling
-#[TODO] should these be on by default?
-		if (Chowdah::getConfigSetting('catch_errors'))
+#[TODO] what should be the default error handling
+		if (Chowdah::getConfigSetting('catch_errors') !== false)
 			set_error_handler(array('Chowdah', 'errorHandler'), error_reporting());
-		if (Chowdah::getConfigSetting('catch_exceptions'))
+		if (Chowdah::getConfigSetting('catch_exceptions') !== false)
 			set_exception_handler(array('Chowdah', 'exceptionHandler'));
 		
 		// stat logging
@@ -69,20 +69,14 @@ class Chowdah
 	//----------------------------------------------------------------------
 	
 	static public function handle(HTTPRequest $request, IHTTPResource $root)
-	{
+	{	
 		// get the requested path
 		$path = array_map('urldecode', array_filter(explode('/', $request->getURL()->path), 'strlen'));
-		// get the root application path
-		$rootPath = Chowdah::getApplicationPath();
-		$tmpPath = @realpath($_SERVER['DOCUMENT_ROOT']);
-		while ($tmpPath != $rootPath && count($path))
-			$tmpPath = @realpath($tmpPath . '/' . array_shift($path));
-		if ($tmpPath != $rootPath)
-			throw new Exception('The path of the Chowdah application could not be resolved.');
-			
+		$applicationPath = Chowdah::getRelativeApplicationPath($request);
+
 		// descend the tree
 		$resource = $root;
-		foreach ($path as $file)
+		foreach (array_slice($path, count(explode('/', $applicationPath)) - 1) as $file)
 			if (!($resource instanceof ICollection) || !($resource = $resource->getChild($file)))
 				throw new HTTPStatusException(404);
 
@@ -94,7 +88,7 @@ class Chowdah
 		if (strlen($request->getURL()->path) > 1 && substr($request->getURL()->path, -1) == '/'
 		    && !($resource instanceof ICollection))
 			throw new HTTPStatusException(404);
-		
+
 		// call the resource handler with the current request
 		$response = $resource->handle($request);
 		// if no response was returned, method is not allowed
@@ -144,6 +138,19 @@ class Chowdah
 		
 		// return the modified request
 		return $request;
+	}
+	
+	public static function getRelativeApplicationPath(HTTPRequest $request) {
+		// get the requested path
+		$path = array_map('urldecode', array_filter(explode('/', $request->getURL()->path), 'strlen'));
+		// get the root application path
+		$applicationPath = '';
+		$rootPath = Chowdah::getApplicationPath();
+		while (@realpath($_SERVER['DOCUMENT_ROOT'] . $applicationPath) != $rootPath && count($path))
+			$applicationPath .= '/' . array_shift($path);
+		if (@realpath($_SERVER['DOCUMENT_ROOT'] . $applicationPath) != $rootPath)
+			throw new Exception('The path of the Chowdah application could not be resolved.');
+		return $applicationPath;
 	}
 	
 	//----------------------------------------------------------------------
