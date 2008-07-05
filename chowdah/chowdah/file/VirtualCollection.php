@@ -5,7 +5,7 @@
  * @package chowdah.file
  */
 
-class VirtualCollection extends VirtualFile implements IWriteableCollection, ArrayAccess, IteratorAggregate, Countable {
+class VirtualCollection extends VirtualFile implements IFiniteCollection, IWriteableCollection, ArrayAccess, IteratorAggregate, Countable {
 	// file properties
 	protected $children = array();
 	
@@ -19,8 +19,8 @@ class VirtualCollection extends VirtualFile implements IWriteableCollection, Arr
 	
 	public function getChildren($flags = null) {
 		// apply class checking
-		$class = $flag == Collection::ONLY_DOCUMENTS ? 'Document' :
-		    ($flag == Collection::ONLY_COLLECTIONS ? 'Collection' : 'File');
+		$class = ($flag == IFiniteCollection::CHILD_DOCUMENTS ? 'Document' :
+		    ($flag == IFiniteCollection::CHILD_COLLECTIONS ? 'Collection' : 'File'));
 		// create an array of children
 		$children = array();
 		foreach ($this->children as $file => $child)
@@ -158,12 +158,12 @@ class VirtualCollection extends VirtualFile implements IWriteableCollection, Arr
 
 	function offsetSet($offset, $value) {
 		// cannot set child of a collection
-		throw new Exception('Cannot set the child of a collection. (Use FSCollection::move or FSCollection::copy)');
+		throw new Exception('Cannot set the child of a collection. Use move() or copy() instead.');
 	}
 
 	function offsetUnset($offset) {
 		// cannot unset child of a collection
-		throw new Exception('Cannot unset the child of a collection. (Use FSCollection::deleteChild)');
+		throw new Exception('Cannot unset the child of a collection. Use deleteChild() instead.');
 	}
 
 	function getIterator() {

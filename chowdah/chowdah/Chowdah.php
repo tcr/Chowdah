@@ -68,7 +68,8 @@ class Chowdah
 	
 	static public function handle(HTTPRequest $request, IHTTPResource $root, $rootPath = null)
 	{
-		// get root andrequest path
+#[TODO] figure out how to do this automatically... and still support symlinks in getApplicationPath()
+		// get root and request path
 		$rootPath = ($rootPath ? @realpath($rootPath) : @realpath($_SERVER['DOCUMENT_ROOT']));
 		$requestPath = @realpath($_SERVER['DOCUMENT_ROOT']) . $request->getURL()->path;
 		// validate requested path
@@ -105,7 +106,13 @@ class Chowdah
 
 	static public function handleCurrentRequest(IHTTPResource $root, $rootPath = null)
 	{
+		// shorthand to handle current HTTP request using Chowdah
 		return Chowdah::handle(Chowdah::getCurrentRequest(), $root, $rootPath);
+	}
+	
+	static public function getApplicationPath()
+	{
+#[TODO]		// count up! use document_root, realpath, ascend heirarchy until we reach caller path (wherever that be)
 	}
 	
 	static public function getCurrentRequest()
