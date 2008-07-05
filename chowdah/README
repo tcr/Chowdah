@@ -38,7 +38,7 @@ servers, this can be done with the following .htaccess file in the root folder:
 	# rewrite all requests to the handler
 	<IfModule mod_rewrite.c>
 	  RewriteEngine On
-	  RewriteRule ^.* .application/request.php  # change this to the path of request.php
+	  RewriteRule ^.* .application/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
 	</IfModule>
 	
 	# the following features are disabled to prevent them from modifying
@@ -50,8 +50,8 @@ servers, this can be done with the following .htaccess file in the root folder:
 	  DirectorySlash Off
 	</IfModule>
 
-For IIS or other servers, you will need to find an alternative URL rewriting
-solution.
+Where ".application/request.php" is the path of the request handler. For IIS or
+other servers, you will need to find an alternative URL rewriting solution.
 
 Configuration:
 

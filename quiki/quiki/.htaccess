@@ -1,7 +1,7 @@
 # rewrite all requests to request handler
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteRule ^.* .quiki/request.php
+  RewriteRule ^.* .quiki/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
 </IfModule>
 <IfModule mod_security.c>
   SecFilterEngine Off
