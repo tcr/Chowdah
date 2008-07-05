@@ -1,18 +1,21 @@
 #!/bin/sh
 
 echo -n "Chowdah version: "
-read -e chowdahversion
+read -e version
 
 # Chowdah
-cp chowdah chowdah-$chowdahversion
-tar -czf chowdah-$chowdahversion.tar.gz chowdah-$chowdahversion
+cp -r chowdah chowdah-$version
+tar -czf chowdah-$version.tar.gz chowdah-$version
+rm -rf chowdah-$version
 
 # Quiki
-cp quiki quiki-$chowdahversion
-cp -r chowdah/chowdah/* quiki-$chowdahversion/quiki/.quiki/chowdah
-tar -czf quiki-$chowdahversion.tar.gz quiki-$chowdahversion
+cp -r quiki quiki-$version
+cp -r chowdah/chowdah/* quiki-$version/quiki/.quiki/chowdah
+tar -czf quiki-$version.tar.gz quiki-$version
+rm -rf quiki-$version
 
 # Server
-cp server server-$chowdahversion
-cp -r chowdah/chowdah/* server-$chowdahversion/server/.server/chowdah
-tar -czf app-server-$chowdahversion.tar.gz server-$chowdahversion
+cp -r server server-$version
+cp -r chowdah/chowdah/* server-$version/server/.server/chowdah
+tar -czf server-$version.tar.gz server-$version
+rm -rf server-$version

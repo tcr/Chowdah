@@ -28,7 +28,7 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 	public function GET(HTTPRequest $request) {
 		// if index is disabled, throw a 403 error
 		if (!$this->showDirectory || !($this->file instanceof IFiniteCollection))
-			throw new HTTPStatusException(HTTPResponse::STATUS_FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
+			throw new HTTPStatusException(HTTPStatus::FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
 	
 		// create the response
 		$response = new HTTPResponse();

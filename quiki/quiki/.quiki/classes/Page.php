@@ -92,7 +92,7 @@ class Page {
 
 		// generate unique query
 		$query = Page::$dbh->prepare('SELECT `title` FROM `pages` ' .
-		    (count($where) ? 'WHERE' . implode(' AND ', $where) : '') . 'ORDER BY `title` ASC');
+		    (count($where) ? 'WHERE' . implode(' AND ', $where) : '') . 'ORDER BY `title` ASC LIMIT ?, ?');
 		// bind parameters
 		for ($i = 0; $i < count($bindParams); $i++)
 			$query->bindValue($i + 1, $bindParams[$i]);
