@@ -32,13 +32,6 @@ class Chowdah
 		// get root path
 		return dirname(__FILE__);
 	}
-	
-	static public function getArgument($name)
-	{
-		// load server args
-		parse_str($_SERVER['argv'][0], $args);
-		return $args[$name];
-	}
 
 	//----------------------------------------------------------------------
 	// error handling
