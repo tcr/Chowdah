@@ -4,12 +4,15 @@ echo -n "Chowdah version: "
 read -e chowdahversion
 
 # Chowdah
-tar -czf chowdah-$chowdahversion.tar.gz chowdah/*
+cp chowdah chowdah-$chowdahversion
+tar -czf chowdah-$chowdahversion.tar.gz chowdah-$chowdahversion
 
 # Quiki
-cp -r chowdah/chowdah/* quiki/quiki/.quiki/chowdah
-tar -czf app-quiki-$chowdahversion.tar.gz quiki/*
+cp quiki quiki-$chowdahversion
+cp -r chowdah/chowdah/* quiki-$chowdahversion/quiki/.quiki/chowdah
+tar -czf quiki-$chowdahversion.tar.gz quiki-$chowdahversion
 
 # Server
-cp -r chowdah/chowdah/* server/server/.server/chowdah
-tar -czf app-server-$chowdahversion.tar.gz server/*
+cp server server-$chowdahversion
+cp -r chowdah/chowdah/* server-$chowdahversion/server/.server/chowdah
+tar -czf app-server-$chowdahversion.tar.gz server-$chowdahversion
