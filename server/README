@@ -9,28 +9,17 @@ file server using Chowdah. It overlays the filesystem, and creates document
 and collection objects of existing files. In addition, it allows finer control
 of file metadata through the use of .metadata.ini files.
 
+Requirements:
+
+Server requires PHP 5 and an Apache server with mod_rewrite (for other servers,
+please consult the Chowdah website).
+
 Instructions:
 
- 1) Unpack the contents of the  server directory into the root of your
-    application. (NOTE: this must be at the root of a domain name, aka,
-    www.example.com/ and not www.example.com/some/sub/folder/)
- 2) Rewrite all requests to the root folder to the .server/request.php file. On
-    Apache servers, this can be done by creating an .htaccess file in the root
-    folder and using mod_rewrite:
-    
-     # rewrite to request handler
-     RewriteEngine On
-     RewriteRule ^.* .server/request.php
-     
-     # These may be needed on some servers
-     # SecFilterEngine Off
-     # DirectorySlash Off
- 
- 3) (Optional) Configure chowdah using the .server/chowdah/config.ini file, such
-    as specifying the location of mime.types (if PHP cannot determine the mime
-    type of a file by any other means)
- 4) Navigate to the root folder using your web browser to see that installation
-    has been successful.
+ 1) Unpack the contents of the quiki directory into the destination folder.
+ 2) Navigate to the folder using your web browser to 
+ 3) (Optional) If you are seeing incorrect MIME types, check that the mime_types
+    path in .server/chowdah/config.ini is correct for your server.
     
 Usage:
 

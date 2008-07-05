@@ -12,26 +12,18 @@ must register in order to be able to edit pages.
 Quiki is not meant to be a fully-featured wiki or database application, but to
 show how resources are created and how to interact with HTTP using Chowdah.
 
+Requirements:
+
+Quiki requires PHP 5, an available MySQL database, and an Apache server with
+mod_rewrite (for other servers, please consult the Chowdah website).
+
 Instructions:
 
- 1) Unpack the contents of the quiki directory into the root of your
-    application. (NOTE: this must be at the root of a domain name, aka,
-    www.example.com/ and not www.example.com/some/sub/folder/)
- 2) Rewrite all requests in the root folder to the .quiki/request.php file. On
-    Apache servers, this can be done by creating an .htaccess file in the root
-    folder and using mod_rewrite:
-    
-     # rewrite to request handler
-     RewriteEngine On
-     RewriteRule ^.* .quiki/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
-     
-     # These may be needed on some servers
-     # SecFilterEngine Off
-     # DirectorySlash Off
- 
- 3) Navigate to the root folder using your web browser and run the installation.
-    (You must have an available MySQL database and permissions in order to run
-    Quiki).
+ 1) Unpack the contents of the quiki directory into the destination folder.
+ 2) Navigate to the folder using your web browser and follow the installation
+    instructions.
+ 3) (Optional) If no styles are showing up, check that the mime_types path in
+    .quiki/chowdah/config.ini is correct for your server.
     
 Usage:
 

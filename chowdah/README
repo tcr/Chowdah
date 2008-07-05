@@ -7,31 +7,52 @@ library to manipulate HTTP requests and responses, create "resource" objects
 which can be manipulated via HTTP calls, and manipulate files, documents, and
 collection objects.
 
+Requirements:
+
+Chowdah requires PHP 5, and an Apache server with mod_rewrite or any server with
+URL-rewriting capabilities.
+
 Usage:
 
-To get started on an Apache server, extract the "chowdah" directory to where you
-want the Chowdah library to be located. In your application folder, create a
-request-handling script akin to the following:
+To get started, extract the "chowdah" directory to where you want the Chowdah
+library to be located (normally your application's root folder). Next, create
+a request-handling script called "request.php" that follows this pattern:
 
-     <?php
+	<?php
 	
-     // load Chowdah class
-     require 'chowdah/Chowdah.php';
+	// load Chowdah class
+	require 'chowdah/Chowdah.php';
 	
-     // import classes, init, &c...
+	// import classes, init, &c...
 	
-     // load Chowdah
-     Chowdah::init();
-     Chowdah::handleCurrentRequest(new RootResource())->send();
+	// load Chowdah
+	Chowdah::init();
+	Chowdah::handleCurrentRequest(new RootResource())->send();
 	
-     ?>
+	?>
 
-Then in your root folder, create an .htaccess file rewriting all requests to the
-request handling script. For example:
+Next, all requests to the root folder must be rewritten to that script. On
+Apache servers, this can be done with the following .htaccess file in your
+application folder:
 
-     # rewrite to request handler
-     RewriteEngine On
-     RewriteRule ^.* .application/request.php
+	# rewrite all requests to request handler
+	<IfModule mod_rewrite.c>
+	  RewriteEngine On
+	  RewriteRule ^.* .application/request.php
+	</IfModule>
+	
+	# the following features are disabled to prevent them from modifying
+	# URLs (Chowdah takes care of any potential security issues)
+	<IfModule mod_security.c>
+	  SecFilterEngine Off
+	</IfModule>
+	<IfModule mod_dir.c>
+	  DirectorySlash Off
+	</IfModule>
+
+Where ".application/request.php" is the location of your handler script. For IIS
+or other servers, you will need your own URL rewriting solution to redirect all
+requests to the script.
 
 Configuration:
 
@@ -109,10 +130,12 @@ in your Chowdah directory. The following options are currently available:
      
 Applications:
      
-To view sample applications, look in the "apps" folder of this archive. For more
-information, visit the website at:
+To view sample applications, take a look at the Chowdah website:
 
-     http://code.google.com/p/chowdah/
+	http://chowdah.googlecode.com/
+     
+Several applications are provided for free for you to examine, modify, and off
+which, base your code.
      
 Credits:
 
