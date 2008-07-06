@@ -1,0 +1,39 @@
+Quiki Application for Chowdah
+Released under the MIT/X license
+Copyright (c) 2008, Tim Cameron Ryan
+
+--------------------------------------------------------------------------------
+
+Quiki is a sample application to demonstrate how to use the Chowdah library to
+create websites. Quiki is a simple wiki that supports using Textile markup to
+style pages. Additionally, it also features a simple user system, where users
+must register in order to be able to edit pages.
+
+Quiki is not meant to be a fully-featured wiki or database application, but to
+show how resources are created and how to interact with HTTP using Chowdah.
+
+Requirements:
+
+Quiki requires PHP 5, an available MySQL database, and an Apache server with
+mod_rewrite (for other servers, please consult the Chowdah website).
+
+Instructions:
+
+ 1) Unpack the contents of the quiki directory into the destination folder.
+ 2) Navigate to the folder using your web browser and follow the installation
+    instructions.
+ 3) (Optional) If no styles are showing up, check that the mime_types path in
+    .quiki/chowdah/config.ini is correct for your server.
+    
+Usage:
+
+Once logged in, a user can create a page in the pages/ directory, edit any
+existing page (including the main page), or delete pages. Users can register by
+using the registration form, which will send a randomly-generated password to
+the e-mail address supplied.
+     
+Information:
+
+Quiki is a simple application that is meant to show the extensibility of the
+Chowdah library. You are free to modify, redistribute, and copy it in any way in
+accordance with the license.

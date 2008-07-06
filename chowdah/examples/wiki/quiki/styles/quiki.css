@@ -1,0 +1,37 @@
+hr { display: none;}
+html, body { margin: 0; padding: 0; }
+html { font-size: 76%; }
+body { font-size: 1.1em; width: 50em; margin: 1.5em auto; position: relative; }
+
+#header { height: 3em; font-family: sans-serif; }
+h1 { float: left; margin: 0; height: 100%; }
+h1 a { text-decoration: none; height: 100%; line-height: 1.5em; padding: 0 0.75em 0 0.75em; display: block; font-weight: bold; }
+h1 a:hover { text-decoration: underline; }
+#nav { float: left; margin: 0; padding: 0; list-style: none; display: block; height: 100%; }
+#nav li { float: left; margin: 0 0.5em 0 0; padding: 0; list-style: none; display: block; height: 100%; }
+#nav li a { font-size: 1.3em; color: white; display: block; padding: 0 0.7em; height: 100%; line-height: 2.2em; text-decoration: none; font-weight: normal; }
+#nav li a:hover { text-decoration: underline; }
+#user { float: right; margin: 0 0.75em 0 0; line-height: 2.8em; }
+
+#footer {  padding: 0.5em 0.5em; text-align: center; color: white; font-family: sans-serif; margin: 0; }
+#body { font-family: Georgia; padding: 0 1em; font-size: 1.1em; }
+
+#tags { padding: 0.5em 0 0; border-top: 1px solid #bbb; }
+
+.actions {  padding: 0.25em 0.5em; margin: 1em -1em 0; overflow: auto; text-align: right; }
+.actions a { text-decoration: none; }
+.actions input { font-size: 0.8em; }
+
+#pages, #pages th, #pages td { border-collapse: collapse; border: 1px solid #985; }
+#pages th { padding: 0.25em 0.5em; background: #cb8}
+#pages td { padding: 0.25em 0.5em; background: #ffe; }
+#pages { width: 100%; }
+#pages-title { width: 75%; }
+
+/* colors */
+#header, #footer { color: white; background: #907f4c; }
+#header a { color: white }
+#header a:hover { background: #985; }
+html { color: black; background: #403324; }
+body { background: #fed; }
+.actions { background: #cb8; }
