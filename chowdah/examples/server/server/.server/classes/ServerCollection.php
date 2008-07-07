@@ -9,11 +9,12 @@ class ServerCollection extends FSCollection implements IServerFile {
 	// metadata extensions
 	//----------------------------------------------------------------------
 
+	protected $metadataCache = null;
+
 	public function getMetadataFile($create = false) {
 		// cache metadata files
-		static $file = null;
-		if ($file)
-			return $file;
+		if ($this->metadataCache)
+			return $this->metadataCache;
 
 		// get the metadata for this collection
 		$path = $this->getPath() . '/.metadata.ini';
@@ -23,7 +24,7 @@ class ServerCollection extends FSCollection implements IServerFile {
 		else if (!is_file($path))
 			file_put_contents($path, '');
 		
-		return ($file = new INIFile($path));
+		return ($this->metadataCache = new INIFile($path));
 	}
 
 	public function getMetadata($key)
