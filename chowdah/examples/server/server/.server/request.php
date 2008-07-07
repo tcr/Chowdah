@@ -8,7 +8,7 @@ import('classes');
 import('resources');
 
 // get the document root
-$root = new ServerCollection($_SERVER['DOCUMENT_ROOT']);
+$root = new ServerCollection(dirname(getcwd()));
 
 // load Chowdah
 Chowdah::init();
