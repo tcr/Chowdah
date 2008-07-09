@@ -52,7 +52,7 @@ class ServerDocument extends FSDocument implements IServerFile {
 	protected function getFileFromPath($path) {
 		// try and return a file at the specified path
 		try {
-			if (is_file($path) && basename($path) != '.metadata.ini')
+			if (is_file($path))
 				return new ServerDocument($path);
 			if (is_dir($path))
 				return new ServerCollection($path);

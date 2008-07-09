@@ -23,9 +23,8 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 	// HTTP methods
 	//----------------------------------------------------------------------
 	
-	protected $methods = array('GET', 'OPTIONS');
-	
-	public function GET(HTTPRequest $request) {
+	public function GET(HTTPRequest $request)
+	{
 		// if index is disabled, throw a 403 error
 		if (!$this->showDirectory || !($this->file instanceof IFiniteCollection))
 			throw new HTTPStatusException(HTTPStatus::FORBIDDEN, null, 'You do not have permission to view the contents of this directory.');
@@ -83,7 +82,8 @@ class CollectionResource extends HTTPResourceBase implements ICollection {
 	// collection
 	//----------------------------------------------------------------------
 
-	public function getChild($filename) {
+	public function getChild($filename)
+	{
 		// get the child file (while not displaying hidden files)
 		if ($filename[0] == '.' || !($child = $this->file->getChild($filename)))
 			return false;

@@ -58,6 +58,7 @@ abstract class HTTPMessage {
 	// content
 	//----------------------------------------------------------------------
 
+#[TODO] make getDecodedContent a parameter option?
 	public function getContent() {
 		// return the content
 		return $this->content;
@@ -235,7 +236,7 @@ abstract class HTTPMessage {
 	
 	public function getDecodedContent() {
 		// check that there is content to decode
-		if ($this->getContent() === null);
+		if ($this->getContent() === null)
 			return false;
 		// check if there is any encoding
 		if (!$this->getHeader('Content-Encoding'))
@@ -351,11 +352,18 @@ abstract class HTTPMessage {
 			case 'text/xml':
 			case 'application/xml':
 			case 'application/xhtml+xml':
-				$parsedContent = DOMDocument::loadXML($this->getContent());
+				$parsedContent = new DOMDocument();
+				$parsedContent->loadXML($this->getContent());
 				break;
 
 			case 'text/html':
-				$parsedContent = DOMDocument::loadHTML($this->getContent());
+				$parsedContent = new DOMDocument();
+				$content = $this->getContent();
+				if (function_exists('mb_convert_encoding'))
+					$content = mb_convert_encoding($content, 'HTML-ENTITIES', "UTF-8"); 
+				else 
+					$content = '<meta http-equiv="content-type" content="text/html; charset=utf-8">' . $content;
+				$parsedContent->loadHTML($content);
 				break;
 		}
 		
@@ -435,10 +443,10 @@ abstract class HTTPMessage {
 	//----------------------------------------------------------------------
 	
 	public function getContentAsDocument() {
+		// get file path
+		$path = ($this instanceof HTTPRequest ? basename($this->getURL()->path) : null);
 		// create a virtual document of the entity
-		$document = new VirtualDocument();
-		if ($this instanceof HTTPRequest)
-			$document->setPath(basename($this->getURL()->path));
+		$document = new VirtualDocument($path);
 		$document->setContentType($this->getContentType());
 		$document->setContent($this->getDecodedContent());
 #[TODO] add last-modified time reading!

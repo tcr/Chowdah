@@ -5,29 +5,53 @@
  * @package chowdah.resources
  */
 
-abstract class HTTPResourceBase implements IHTTPResource {
-	// allowed HTTP methods
-	protected $methods = array('OPTIONS');
-
-	public function handle(HTTPRequest $request) {
+abstract class HTTPResourceBase implements IHTTPResource
+{
+	public function handle(HTTPRequest $request)
+	{
 		// handle HTTP request if method is allowed
-		if (in_array($request->getMethod(), $this->methods))
+		if (in_array($request->getMethod(), $this->getAllowedMethods()))
 			return $this->{$request->getMethod()}($request);
 			
 		// method not allowed
 		return false;
 	}
 	
-	// allowed methods
-	public function getAllowedMethods() {
-		return $this->methods;
+	// HTTP methods cache
+	private $methodsCache;
+	
+	// allowed HTTP methods
+	public function getAllowedMethods()
+	{
+		// return cached methods array
+		if (is_array($this->methodsCache))
+			return $this->methodsCache;
+		
+		// get method list
+		$this->methodsCache = array();
+		$class = new ReflectionClass(get_class($this));
+		foreach ($class->getMethods() as $method)
+		{
+			// screen methods
+			if (!$method->isPublic() || $method->getNumberOfParameters() != 1 ||
+			    ($method->getDeclaringClass() == new ReflectionClass('HTTPResourceBase')
+			        && $method->getName() == 'handle'))
+				continue;
+			
+			// screen parameters
+			$params = $method->getParameters();
+			if ($params[0]->getClass() == new ReflectionClass('HTTPRequest'))
+				$this->methodsCache[] = $method->getName();
+		}
+		return $this->methodsCache;
 	}
 	
-	// default OPTIONS class
-	public function OPTIONS(HTTPRequest $request) {
+	// default OPTIONS handler
+	public function OPTIONS(HTTPRequest $request)
+	{
 		// create the response
 		$response = new HTTPResponse();
-		$response->setHeader('Allow', implode($this->methods));
+		$response->setHeader('Allow', implode($this->getAllowedMethods()));
 		return $response;
 	}
 }

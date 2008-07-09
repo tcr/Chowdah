@@ -5,7 +5,8 @@
  * @package chowdah.resources
  */
 
-interface IHTTPResource {
+interface IHTTPResource
+{
 	// handle an HTTPRequest
 	public function handle(HTTPRequest $request);
 	

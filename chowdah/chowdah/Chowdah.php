@@ -129,6 +129,13 @@ class Chowdah
 			// set content
 			if ($request->parsedContent['request_content'] instanceof IDocument)
 				$request->setContentAsDocument($request->parsedContent['request_content']);
+			else if ($request->parsedContent['request_content'] && $request->parsedContent['request_content_type'])
+			{
+				$doc = new VirtualDocument;
+				$doc->setContent($request->parsedContent['request_content']);
+				$doc->setContentType(MIMEType::parse($request->parsedContent['request_content_type']));
+				$request->setContentAsDocument($doc);
+			}
 		}
 		
 		// HTTP Authorization header workaround
