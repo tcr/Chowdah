@@ -300,6 +300,9 @@ abstract class HTTPMessage {
 		if ($this->parsedContentCache)
 			return $this->parsedContentCache;
 		
+		// set error handler to check for bad requests
+		set_error_handler(array('HTTPMessage', 'parsedContentErrorHandler'), error_reporting());
+		
 		// return a parsed representation of the content (based on MIME type)
 		$parsedContent = $this->getContent();
 		switch ($this->getContentType()->serialize(false))
@@ -360,18 +363,31 @@ abstract class HTTPMessage {
 				$parsedContent = new DOMDocument();
 				$content = $this->getContent();
 				if (function_exists('mb_convert_encoding'))
-					$content = mb_convert_encoding($content, 'HTML-ENTITIES', "UTF-8"); 
+					$content = mb_convert_encoding($content, 'HTML-ENTITIES'); 
 				else 
 					$content = '<meta http-equiv="content-type" content="text/html; charset=utf-8">' . $content;
 				$parsedContent->loadHTML($content);
 				break;
 		}
 		
+		// restore Chowdah error handler
+		restore_error_handler();	
 		// cache and return the content
 		return ($this->parsedContentCache = $parsedContent);
 	}
+	
+	public static function parsedContentErrorHandler($errno, $errstr, $errfile, $errline)
+	{
+		// restore Chowdah error handler
+		restore_error_handler();
+		
+		// throw a HTTP 400 Bad Request exception
+		if (error_reporting())
+			throw new HTTPStatusException(HTTPStatus::BAD_REQUEST, 'Bad Request', 'The submitted content body was malformed.');
+	}
 
 	public function setParsedContent($data, $type = null) {
+#[TODO] should this be based on data type?
 		// get the content mimetype
 		if ($type)
 			$this->setContentType($type);
@@ -385,6 +401,7 @@ abstract class HTTPMessage {
 				$this->setContent(http_build_query($data));
 				break;
 
+#[TODO] MultipartFormData class!
 			case 'multipart/form-data':
 				// reconstruct from submitted data
 				$this->setContent('');
@@ -419,6 +436,8 @@ abstract class HTTPMessage {
 			case 'text/xml':
 			case 'application/xml':
 			case 'application/xhtml+xml':
+				if ($data instanceof SimpleXMLElement)
+					$data = dom_import_simplexml($data)->ownerDocument;
 				if ($data instanceof DOMDocument)
 					$data->formatOutput = true;
 				$this->setContent($data->saveXML());

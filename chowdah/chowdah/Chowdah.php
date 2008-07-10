@@ -51,8 +51,10 @@ class Chowdah
 		// if the exception is generic, throw a 500 Internal Server Error
 		if (!($exception instanceof HTTPStatusException))
 			$exception = new HTTPStatusException(500, 'Internal Server Error', $exception->getMessage());
-		// display the error message
+		
+		// display the error message and stop execution
 		$exception->getHTTPResponse()->send();
+		die();
 #[TODO] log exception?
 	}
 	
@@ -60,7 +62,7 @@ class Chowdah
 	{
 		// if we're reporting errors, display a 500 Internal Server Error
 		if (error_reporting())
-			$exception = new HTTPStatusException(500, 'Internal Server Error', $errstr);
+			throw new HTTPStatusException(500, 'Internal Server Error', strip_tags(html_entity_decode($errstr)));
 #[TODO] log error?
 	}
 

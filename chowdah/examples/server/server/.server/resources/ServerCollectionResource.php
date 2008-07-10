@@ -31,8 +31,7 @@ class ServerCollectionResource extends CollectionResource
 	public function handle(HTTPRequest $request)
 	{
 		// return the response of the index, or this collection
-		$method = $request->getMethod();
-		return ($this->index ? $this->index->{$method}($request) : $this->{$method}($request));
+		return ($this->index ? $this->index->handle($request) : parent::handle($request));
 	}
 
 	//----------------------------------------------------------------------

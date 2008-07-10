@@ -21,7 +21,7 @@ abstract class HTTPType {
 			foreach ((array) $params as $key => $value)
 				$this->params[$key] = (string) $value;
 	}
-
+	
 	public function serialize($withParams = true) {
 		// return the serialized type
 		$string = $this->type;
@@ -29,6 +29,10 @@ abstract class HTTPType {
 			foreach ($this->params as $key => $value)
 				$string .= ';' . $key . '=' . $value;
 		return $string;
+	}
+	
+	public function __toString() {
+		return $this->serialize();
 	}
 
 	public function match($matchType, $strict = false) {
