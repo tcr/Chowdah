@@ -60,7 +60,7 @@ class Chowdah
 	
 	static public function errorHandler($errno, $errstr, $errfile, $errline)
 	{
-		// if we're reporting errors, display a 500 Internal Server Error
+		// display errors as a 500 Internal Server Error
 		if (error_reporting())
 			throw new HTTPStatusException(500, 'Internal Server Error', strip_tags(html_entity_decode($errstr)));
 #[TODO] log error?
@@ -80,24 +80,28 @@ class Chowdah
 		$resource = $root;
 		foreach (array_slice($path, count(explode('/', $applicationPath)) - 1) as $file)
 			if (!($resource instanceof ICollection) || !($resource = $resource->getChild($file)))
-				throw new HTTPStatusException(404);
+				throw new HTTPStatusException(HTTPStatus::NOT_FOUND);
 
 		// check that a collection wasn't requested as a document
 		if (substr($request->getURL()->path, -1) != '/' && $resource instanceof ICollection)
-			throw new HTTPStatusException(301, 'Moved Permanently',
+			throw new HTTPStatusException(HTTPStatus::MOVED_PERMANENTLY, null,
 			    null, array('Location' => $request->getURL() . '/'));
 		// or a document requested as a collection
 		if (strlen($request->getURL()->path) > 1 && substr($request->getURL()->path, -1) == '/'
 		    && !($resource instanceof ICollection))
-			throw new HTTPStatusException(404);
+			throw new HTTPStatusException(HTTPStatus::NOT_FOUND);
 
+		// check that this method is supported
+		$methods = $resource->getAllowedMethods();
+		if (!in_array($request->getMethod(), $methods) && !in_array('*', $methods))
+			throw new HTTPStatusException(HTTPStatus::METHOD_NOT_ALLOWED, null,
+			    'The method "' . $request->getMethod() . '" is not allowed on this resource.',
+			    array('Allow' => implode(', ', $methods)));
 		// call the resource handler with the current request
 		$response = $resource->handle($request);
-		// if no response was returned, method is not allowed
 		if (!($response instanceof HTTPResponse))
-			throw new HTTPStatusException(405, 'Method Not Allowed',
-			    'The method "' . $request->getMethod() . '" is not allowed on this resource.',
-			    array('Allow' => implode(', ', $resource->getAllowedMethods())));
+			throw new HTTPStatusException(HTTPStatus::NO_CONTENT);
+			    
 		// return the response
 		return $response;
 	}

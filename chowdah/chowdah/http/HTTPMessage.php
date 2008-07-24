@@ -363,7 +363,7 @@ abstract class HTTPMessage {
 				$parsedContent = new DOMDocument();
 				$content = $this->getContent();
 				if (function_exists('mb_convert_encoding'))
-					$content = mb_convert_encoding($content, 'HTML-ENTITIES'); 
+					$content = mb_convert_encoding($content, 'HTML-ENTITIES', mb_detect_encoding($content)); 
 				else 
 					$content = '<meta http-equiv="content-type" content="text/html; charset=utf-8">' . $content;
 				$parsedContent->loadHTML($content);
@@ -550,6 +550,11 @@ function http_parse_query($query, $arg_separator = null) {
 		$query = str_replace(array('&', $arg_separator), array('\&', '&'), $query);
 	// parse the string
 	parse_str($query, $data);
+	// parameters without equal signs are set to 'true'
+	foreach (explode('&', $query) as $value)
+		if (!strpos($value, '='))
+			$data[$value] = true;
+	// strip quotes
 	return strip_magic_quotes($data);
 }
 
