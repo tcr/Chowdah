@@ -74,60 +74,14 @@ in your Chowdah directory. The following options are currently available:
      Points to the location of mime.types on the server. This is useful if you
      are loading static files from the server (using the FSDocument class), and
      when other MIME type detection methods aren't available.
-
-  auth_header_key (example: auth_header_key = "REDIRECT_REMOTE_USER")
-  
-     On some Apache servers, the Authorization header is not available. By using
-     mod_rewrite, you can create a rule to include this header as an environment
-     variable:
      
-     RewriteRule ^.* .application/request.php [E=REMOTE_USER:%{HTTP:Authorization}]
-     
-     In the PHP environment, this would may be set as $REDIRECT_REMOTE_USER.
-     Check your own environment to see how this acts.
-     
-  html_form_compat = (true|false)
-  
-     HTML forms, by default, only support the GET and POST methods. This option
-     allows "POST tunnelling"--that is, the support of HTTP methods other than
-     POST by directing it through a POST request. By including certain fields in
-     your HTML form, you can transparently redirect the submission to another
-     method function as if it actually used that method. In your HTML form, add
-     a field called "http_method" to specify the method you want to use:
-     
-       <input type="hidden" name="http_method" value="DELETE">
-       
-     In your resource, the DELETE() function, rather than POST(), would then be
-     called, with no noticable difference as though it were an actual DELETE
-     request. In the case of file uploads, you can also specify that an upload
-     be used as the body of the request (such as emulating the PUT method):
-     
-       <input type="file" name="http_content">
-       
-     This feature is specifically for HTML forms and should not be used in
-     situations where using PUT, DELETE, or other methods directly would work.
-     Enabling this feature may also be a potential security risk if methods
-     other than POST are intentionally blocked; use it at your own risk.
-   
-   accept.* (example: accept.ie.4 = "text/html,image/*;q=0.9,*/*;q=0.5")
-   
-     Many older browsers have broken Accept: headers, defeating the usefulness
-     of content-negotiation. In your config.ini file, you can specify overrides
-     to accept headers, and Chowdah will transparently rewrite your requests.
-     Here are some useful overrides:
-     
-     accept.IE.4 = "text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
-     accept.IE.5 = "text/html,text/xml,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
-     accept.IE.6 = "text/html,text/xml,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
-     accept.Netscape.4 = "text/html,text/plain;q=0.8,image/png,image/*;q=0.9,*/*;q=0.5"
-     
-   catch_errors = (true|false)
+  catch_errors = (true|false)
    
      If set to true, all errors are caught and displayed as a 500 Internal
      Server Error. Otherwise, unsuppressed errors are displayed as normal
      (potentially breaking HTTP headers).
      
-   catch_exceptions = (true|false)
+  catch_exceptions = (true|false)
    
      If set to true, all exceptions are caught and displayed as a 500 Internal 
      Server Error. Otherwise, uncaught exceptions are displayed as normal

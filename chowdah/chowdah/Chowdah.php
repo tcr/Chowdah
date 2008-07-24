@@ -109,48 +109,7 @@ class Chowdah
 	static public function handleCurrentRequest(IHTTPResource $root)
 	{
 		// shorthand to handle current HTTP request using Chowdah
-		return Chowdah::handle(Chowdah::getCurrentRequest(), $root);
-	}
-	
-	static public function getCurrentRequest()
-	{
-		// get the current HTTP request
-		$request = HTTPRequest::getCurrent();
-		
-#[TODO] better specify this format
-		// fix browser Accept: strings
-		if ($agent = $request->getUserAgentInfo()) {
-			// get override
-			$accept = Chowdah::getConfigSetting('accept');
-			if ($override = $accept[$agent->browser][$agent->majorver])
-				$request->setHeader('Accept', $override);
-		}
-		
-		// html form compatibility
-		if (Chowdah::getConfigSetting('html_form_compat'))
-		{
-			// set method
-			if (is_string($request->parsedContent['request_method']))
-				$request->setMethod($request->parsedContent['request_method']);
-			// set content
-			if ($request->parsedContent['request_content'] instanceof IDocument)
-				$request->setContentAsDocument($request->parsedContent['request_content']);
-			else if ($request->parsedContent['request_content'] && $request->parsedContent['request_content_type'])
-			{
-				$doc = new VirtualDocument;
-				$doc->setContent($request->parsedContent['request_content']);
-				$doc->setContentType(MIMEType::parse($request->parsedContent['request_content_type']));
-				$request->setContentAsDocument($doc);
-			}
-		}
-		
-		// HTTP Authorization header workaround
-		if (!function_exists('getallheaders') && !$_SERVER['HTTP_AUTHORIZATION']
-		    && Chowdah::getConfigSetting('auth_header_key'))
-			$request->setHeader('Authorization', $_SERVER[Chowdah::getConfigSetting('auth_header_key')]);
-		
-		// return the modified request
-		return $request;
+		return Chowdah::handle(HTTPRequest::getCurrent(), $root);
 	}
 	
 	public static function getRelativeApplicationPath(HTTPRequest $request) {
@@ -203,7 +162,7 @@ class Chowdah
 	//----------------------------------------------------------------------
 
 	// configuration location
-	const CONFIG_FILE = 'config.ini';
+	const CONFIG_FILE = 'chowdah.ini';
 	
 	protected static $configSettings = array();
 	
