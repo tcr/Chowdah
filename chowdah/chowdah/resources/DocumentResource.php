@@ -28,8 +28,6 @@ class DocumentResource extends HTTPResourceBase
 		// display the file
 		$response = new HTTPResponse();
 		$response->setContentAsDocument($this->file);
-#[TODO] move this to HTTPMessage, both in setContentAsDocument and setModificationTime()
-		$response->setHeader('Last-Modified', date(DATE_RFC2822, $this->file->getModificationTime()));
 		return $response;
 	}
 }

@@ -49,6 +49,29 @@ class FSDocument extends FSFile implements IWriteableDocument {
 		// cannot set the content type on filesystem
 		return false;
 	}
+	
+	// http message
+	
+	public function getHTTPMessageContent(HTTPMessage $message))
+	{
+		// load entity content
+		$this->setContentType($message->getContentType());
+		$this->setContent($message->getDecodedContent());
+		// set file path
+		if ($message instanceof HTTPRequest)
+			$this->path = $message->getURL()->path;
+		// last modified header
+		$message->setHeader('Last-Modified', date(DATE_RFC2822, $this->getModificationTime()));
+	}
+
+	public function setHTTPMessageContent(HTTPMessage $message)
+	{
+		// save this document as message content
+		$message->setContentType($this->getContentType());
+		$message->setContent($this->getContent());
+		// last modified header
+		$message->setHeader('Last-Modified', date(DATE_RFC2822, $this->getModificationTime()));
+	}
 }
 
 ?>
